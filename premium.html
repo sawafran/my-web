@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAWKOFF | Premium Track</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #ff0000; --bg: #050505; --card: #121212; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; text-align: center; }
+        .container { width: 95%; max-width: 480px; margin: 0 auto; padding: 40px 10px; }
+        
+        .premium-badge { background: var(--primary); color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; margin-bottom: 20px; display: inline-block; }
+        
+        h2 { font-size: 28px; margin-bottom: 10px; }
+        
+        /* Плеєр */
+        .player-box { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 30px 20px; margin: 30px 0; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
+        audio { width: 100%; filter: invert(1); } /* Інверсія, щоб плеєр був світлим на темному фоні */
+
+        .description { color: #888; font-size: 14px; line-height: 1.6; text-align: left; background: #0c0c0c; padding: 20px; border-radius: 12px; }
+
+        .back-link { display: inline-block; margin-top: 30px; color: var(--primary); text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="premium-badge">ЕКСКЛЮЗИВ</div>
+    <h2>Назва твого треку</h2>
+    
+    <div class="player-box">
+        <audio controls controlsList="nodownload">
+            <source src="track.mp3" type="audio/mpeg">
+            Ваш браузер не підтримує аудіо.
+        </audio>
+        <p style="font-size: 12px; color: #444; margin-top: 10px;">Слухай тільки тут</p>
+    </div>
+
+    <div class="description">
+        <strong>Про цей реліз:</strong><br>
+        Тут напиши 3-4 речення про трек. Наприклад: "Цей біт був створений під впливом нічного міста...". Це потрібно, щоб Google AdSense бачив унікальний текст і швидше схвалив сайт.
+    </div>
+
+    <a href="index.html" class="back-link">← Повернутися на головну</a>
+</div>
+
+</body>
+</html>
