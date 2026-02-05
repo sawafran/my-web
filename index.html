@@ -173,9 +173,17 @@
 </div>
 </div>
 
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("Додаток готовий до роботи!"))
+      .catch((err) => console.log("Помилка сервіс-воркера", err));
+  }
+</script>
 </body>
 
 </html>
+
 
 
 
