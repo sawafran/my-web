@@ -193,9 +193,21 @@ window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); defe
 banner.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') banner.style.display = 'none'; deferredPrompt = null; } else { alert("Натисни 3 крапки в кутку браузера та обери 'Встановити'"); } });
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } </script>
+    <script> let deferredPrompt; const banner = document.getElementById('pwa-install-banner');
+
+// Перевіряємо, чи це вже додаток const isApp = window.matchMedia('(display-mode: standalone)').matches;
+
+if (!isApp) { setTimeout(() => { banner.style.display = 'block'; }, 3000); }
+
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+
+banner.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') banner.style.display = 'none'; deferredPrompt = null; } else { alert("Натисни 3 крапки та обери 'Встановити'"); } });
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } </script>
 </body>
 
 </html>
+
 
 
 
