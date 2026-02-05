@@ -56,6 +56,51 @@
 
         .ad-spot { background: rgba(255,255,255,0.02); border: 1px dashed #333; border-radius: 10px; padding: 20px; margin: 20px 0; font-size: 10px; color: #444; }
         .footer { margin-top: 40px; font-size: 10px; color: #333; letter-spacing: 1px; }
+
+        .video-preview {
+    position: relative;
+    display: block;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    border: 1px solid #222;
+    transition: 0.3s;
+}
+
+.video-preview img {
+    width: 100%;
+    display: block;
+    transition: 0.5s;
+}
+
+.video-preview:hover img {
+    transform: scale(1.05); /* Ефект легкого наближення */
+    filter: brightness(0.7);
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 0, 0, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    z-index: 2;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+.video-preview:hover .play-button {
+    background: #ff0000;
+    transform: translate(-50%, -50%) scale(1.1);
+}
     </style>
 </head>
 <body>
@@ -65,7 +110,12 @@
     <div class="tagline">Official Artist Page</div>
 
     <div class="main-video">
-        <iframe src="https://www.youtube.com/embed/bml8uw6M0Os" allowfullscreen></iframe>
+        <a href="https://www.youtube.com/watch?v=bml8uw6M0Os" target="_blank" class="video-preview">
+    <div class="play-button">
+        <i class="fa-solid fa-play"></i>
+    </div>
+    <img src="https://img.youtube.com/vi/bml8uw6M0Os/maxresdefault.jpg" alt="SAШKOFF Video Preview">
+</a>
     </div>
 
     <div class="ad-spot">READ ADVERTISEMENT BLOCK</div>
@@ -125,6 +175,7 @@
 </body>
 
 </html>
+
 
 
 
