@@ -1,65 +1,79 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-R4P9KM607X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-R4P9KM607X');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAWKOFF | Premium Track</title>
+    <title>SAШKOFF | Пісні Онлайн</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #050505; --card: #121212; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; text-align: center; }
-        .container { width: 95%; max-width: 480px; margin: 0 auto; padding: 40px 10px; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 95%; max-width: 480px; padding: 20px 10px; text-align: center; }
         
-        .premium-badge { background: var(--primary); color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; margin-bottom: 20px; display: inline-block; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; padding: 10px; }
+        .back-btn { color: white; text-decoration: none; font-size: 20px; background: var(--card); padding: 10px 15px; border-radius: 12px; border: 1px solid #222; }
         
-        h2 { font-size: 28px; margin-bottom: 10px; }
-        
-        /* Плеєр */
-        .player-box { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 30px 20px; margin: 30px 0; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
-        audio { width: 100%; filter: invert(1); } /* Інверсія, щоб плеєр був світлим на темному фоні */
+        h2 { font-size: 24px; letter-spacing: 2px; margin: 0; text-transform: uppercase; }
+        .section-title { text-align: left; font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 15px; }
 
-        .description { color: #888; font-size: 14px; line-height: 1.6; text-align: left; background: #0c0c0c; padding: 20px; border-radius: 12px; }
+        /* Картка треку */
+        .track-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+            transition: 0.3s;
+        }
+        .track-info { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .track-icon { font-size: 24px; width: 50px; height: 50px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #333; }
+        .track-text { text-align: left; }
+        .track-text h4 { margin: 0; font-size: 16px; color: #fff; }
+        .track-text p { margin: 4px 0 0; font-size: 12px; color: #777; }
 
-        .back-link { display: inline-block; margin-top: 30px; color: var(--primary); text-decoration: none; font-size: 14px; }
-        .back-link:hover { text-decoration: underline; }
+        /* Контейнер плеєра */
+        .player-container {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+        .player-container iframe {
+            position: absolute;
+            top: -50px; /* Ховаємо верхню частину відео, залишаємо тільки плеєр */
+            left: 0;
+            width: 100%;
+            height: 180px; 
+        }
+
+        .ad-spot { background: rgba(255,255,255,0.02); border: 1px dashed #333; border-radius: 10px; padding: 15px; margin: 20px 0; font-size: 10px; color: #444; }
+        
+        /* Кнопка встановлення (як на головній) */
+        #pwa-install-banner {
+            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: var(--primary); color: white;
+            padding: 15px; border-radius: 12px; text-align: center; z-index: 9999;
+            font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="premium-badge">ЕКСКЛЮЗИВ</div>
-    <h2>Назва твого треку</h2>
-    
-    <div class="player-box">
-        <audio controls controlsList="nodownload">
-            <source src="Track.mp3" type="audio/mpeg">
-            Ваш браузер не підтримує аудіо.
-        </audio>
-        <p style="font-size: 12px; color: #444; margin-top: 10px;">Слухай тільки тут</p>
-    </div>
+    <div class="header">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Пісні Онлайн</h2>
+        <div style="width: 45px;"></div> </div>
 
-    <div class="description">
-        <strong>Про цей реліз:</strong><br>
-        Тут напиши 3-4 речення про трек. Наприклад: "Цей біт був створений під впливом нічного міста...". Це потрібно, щоб Google AdSense бачив унікальний текст і швидше схвалив сайт.
-    </div>
+    <div class="ad-spot">ADVERTISEMENT BLOCK</div>
 
-    <a href="index.html" class="back-link">← Повернутися на головну</a>
-</div>
+    <div class="section-title">Слухати безкоштовно</div>
 
-    <div class="footer" style="margin-top: 50px; padding-bottom: 20px; font-size: 10px; color: #333;">
-    © 2026 SAШKOFF MUSIC. UKRAINE. <br>
-    <a href="privacy.html" style="color: #555; text-decoration: none; margin-top: 10px; display: inline-block; border-bottom: 1px dashed #333;">Privacy Policy</a>
-</div>
-    
-
-</body>
-</html>
+    <div class="track-card">
+        <div class="track-info">
+            <div class="track-icon">🔥</div>
+            <div class="track-text">
+                <h4>Назва треку 1</h4>
+                <p>SAШKOFF • 2026</p>
