@@ -180,33 +180,21 @@
       .catch((err) => console.log("Помилка сервіс-воркера", err));
   }
 </script>
-    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #ff0000; color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: bold; cursor: pointer;">
-    <i class="fa-solid fa-download"></i> Встановити додаток SAШKOFF
-</div>
-    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #ff0000; color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 9999; font-weight: bold; cursor: pointer;"> Встановити додаток SAШKOFF </div>
-    <script> let deferredPrompt; const banner = document.getElementById('pwa-install-banner');
+  <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #ff0000; color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 9999; font-weight: bold; cursor: pointer;">Встановити додаток SAШKOFF</div>
 
-setTimeout(() => { banner.style.display = 'block'; }, 3000);
+<script> (function() { let dp; const b = document.getElementById('pwa-install-banner'); const isApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+if (!isApp) { setTimeout(() => { b.style.display = 'block'; }, 3000); }
 
-banner.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') banner.style.display = 'none'; deferredPrompt = null; } else { alert("Натисни 3 крапки в кутку браузера та обери 'Встановити'"); } });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dp = e; });
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } </script>
-    <script> let deferredPrompt; const banner = document.getElementById('pwa-install-banner');
+b.addEventListener('click', async () => { if (dp) { dp.prompt(); const { outcome } = await dp.userChoice; if (outcome === 'accepted') b.style.display = 'none'; dp = null; } else { alert("Натисни 3 крапки в меню браузера та обери 'Встановити'"); } });
 
-// Перевіряємо, чи це вже додаток const isApp = window.matchMedia('(display-mode: standalone)').matches;
-
-if (!isApp) { setTimeout(() => { banner.style.display = 'block'; }, 3000); }
-
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-
-banner.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') banner.style.display = 'none'; deferredPrompt = null; } else { alert("Натисни 3 крапки та обери 'Встановити'"); } });
-
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } </script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } })(); </script>
 </body>
 
 </html>
+
 
 
 
