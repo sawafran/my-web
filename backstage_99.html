@@ -74,18 +74,14 @@ async function updateSite() {
        // Зміни цей рядок у своїй функції updateSite:
         const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         
-     const res = await fetch(fileUrl, {
+     const res = await fetch(`https://api.github.com/repos/${REPO}/contents/premium.html`, {
     headers: { 'Authorization': `token ${token}` }
 });
-        
-        if (res.status === 404) {
-            throw new Error(`Файл не знайдено за шляхом: ${REPO}/premium.html. Перевір назву репозиторію!`);
-        }
-        
-        if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(`Помилка GitHub: ${errData.message}`);
-        }
+
+if (res.status === 404) {
+    status.innerText = "Помилка 404: GitHub не бачить файл premium.html у репозиторії " + REPO;
+    throw new Error("Перевір назву репо або чи файл не в папці!");
+}
         
         const data = await res.json();
         const bytes = Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0));
