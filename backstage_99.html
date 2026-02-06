@@ -56,34 +56,38 @@
 async function updateSite() {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value;
-    const id = document.getElementById('ytId').value;
+    const rawId = document.getElementById('ytId').value.trim();
     const emoji = document.getElementById('emoji').value;
     const btn = document.getElementById('pubBtn');
     const status = document.getElementById('status');
 
-    if(!token || !title || !id) return alert("Заповни всі поля!");
+    // Очищення ID від посилань
+    let cleanId = rawId;
+    if (rawId.includes('v=')) cleanId = rawId.split('v=')[1].split('&')[0];
+    else if (rawId.includes('youtu.be/')) cleanId = rawId.split('youtu.be/')[1].split('?')[0];
+    cleanId = cleanId.split('?')[0];
+
+    if(!token || !title || !cleanId) return alert("Заповни всі поля!");
 
     btn.disabled = true;
     status.innerText = "З'єднуюсь з GitHub...";
 
-    // ПЕРЕВІР ЦЕЙ РЯДОК ЩЕ РАЗ ПЕРЕД ЗБЕРЕЖЕННЯМ:
-    const REPO = "sawafran/my-web.github.io"; 
+    // ТЕПЕР ТУТ ПРАВИЛЬНА НАЗВА (з твого скріншота)
+    const REPO = "sawafran/my-web"; 
 
     try {
-        // Додаємо випадковий параметр ?nocache, щоб обійти кеш
-       // Зміни цей рядок у своїй функції updateSite:
+        // Чистий URL без зайвих заголовків, щоб не було помилки CORS
         const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         
-     const res = await fetch(`https://api.github.com/repos/${REPO}/contents/premium.html`, {
-    headers: { 'Authorization': `token ${token}` }
-});
-
-if (res.status === 404) {
-    status.innerText = "Помилка 404: GitHub не бачить файл premium.html у репозиторії " + REPO;
-    throw new Error("Перевір назву репо або чи файл не в папці!");
-}
+        const res = await fetch(fileUrl, {
+            headers: { 'Authorization': `token ${token}` }
+        });
+        
+        if (!res.ok) throw new Error("GitHub не знайшов файл premium.html у репозиторії my-web");
         
         const data = await res.json();
+        
+        // Розшифровка UTF-8 (щоб українські букви не ламалися)
         const bytes = Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0));
         const content = new TextDecoder('utf-8').decode(bytes);
 
@@ -94,45 +98,45 @@ if (res.status === 404) {
             <p>SAШKOFF • 2026</p>
         </div>
         <div class="player-wrapper">
-            <iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1&rel=0" allowfullscreen></iframe>
         </div>
     </div>`;
 
         const marker = '<div id="music-list"></div>';
-        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено в premium.html!");
+        if(!content.includes(marker)) throw new Error("Додай рядок <div id='music-list'></div> у свій premium.html!");
         
         const updatedContent = content.replace(marker, marker + newCard);
+        
+        // Кодування назад у Base64
         const utf8Bytes = new TextEncoder().encode(updatedContent);
         const base64Content = btoa(String.fromCharCode(...utf8Bytes));
 
-        const updateRes = await fetch(fileUrl.split('?')[0], {
+        const updateRes = await fetch(fileUrl, {
             method: 'PUT',
             headers: { 
                 'Authorization': `token ${token}`,
                 'Content-Type': 'application/json' 
             },
             body: JSON.stringify({
-                message: `🎵 Новий трек: ${title}`,
+                message: `🎵 Додано: ${title}`,
                 content: base64Content,
-                sha: data.sha,
-                branch: "main" // Вказуємо гілку явно
+                sha: data.sha
             })
         });
 
         if(updateRes.ok) {
             status.style.color = "#0f0";
-            status.innerText = "УСПІХ! Пісня додана. Онови сторінку через хвилину.";
+            status.innerText = "УСПІХ! Пісня з'явиться за хвилину.";
             document.getElementById('trackTitle').value = "";
             document.getElementById('ytId').value = "";
         } else {
             const errJson = await updateRes.json();
-            throw new Error("Не вдалося зберегти: " + errJson.message);
+            throw new Error(errJson.message);
         }
 
     } catch (err) {
         status.style.color = "#f00";
-        status.innerText = err.message;
-        console.error(err);
+        status.innerText = "Помилка: " + err.message;
     } finally {
         btn.disabled = false;
     }
