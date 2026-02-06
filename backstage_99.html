@@ -8,7 +8,7 @@
         .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
         .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .btn-del { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #666; cursor: pointer; border-radius: 5px; margin-top: 15px; width: 100%; }
+        .btn-del { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #ff4444; cursor: pointer; border-radius: 5px; margin-top: 15px; width: 100%; font-weight: bold; }
         #status { text-align: center; margin-top: 15px; font-weight: bold; }
         label { font-size: 11px; color: #555; text-transform: uppercase; margin-left: 5px; }
     </style>
@@ -54,12 +54,15 @@ async function run(mode) {
     const REPO = "sawafran/my-web";
 
     if(!token) return alert("Введи токен!");
-    status.innerText = "Зв'язок...";
+    status.innerText = "Зв'язок з сервером...";
+    status.style.color = "#fff";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         const res = await fetch(url, { headers: {'Authorization': `token ${token}`} });
         const data = await res.json();
+        
+        // Декодування контенту
         const content = new TextDecoder('utf-8').decode(Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0)));
 
         const marker = '<div id="music-list"></div>';
@@ -74,25 +77,50 @@ async function run(mode) {
                 player = `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${id}?modestbranding=1" allowfullscreen></iframe></div>`;
             }
 
+            // Ми використовуємо мітки та для точного пошуку
             const card = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
             updated = content.replace(marker, marker + card);
         } else {
-            if(!content.includes('')) throw new Error("Порожньо");
+            // ЛОГІКА ВИДАЛЕННЯ: шукаємо перший зверху блок між мітками
+            if(!content.includes('')) {
+                status.innerText = "Треків для видалення не знайдено!";
+                status.style.color = "#ffae00";
+                return;
+            }
+            // Видаляємо один блок за раз
             updated = content.replace(/[\s\S]*?/, "");
         }
 
-        const base64 = btoa(String.fromCharCode(...new TextEncoder().encode(updated)));
+        const utf8Bytes = new TextEncoder().encode(updated);
+        const base64 = btoa(String.fromCharCode(...utf8Bytes));
+        
         const push = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: mode==='add'?"+":"-", content: base64, sha: data.sha })
+            body: JSON.stringify({ 
+                message: mode === 'add' ? `Add track: ${title}` : "Remove last track", 
+                content: base64, 
+                sha: data.sha 
+            })
         });
 
         if(push.ok) {
-            status.innerText = "ГОТОВО!";
+            status.innerText = mode === 'add' ? "УСПІШНО ДОДАНО!" : "УСПІШНО ВИДАЛЕНО!";
             status.style.color = "#0f0";
+            // Очищення полів після додавання
+            if(mode === 'add') {
+                document.getElementById('trackTitle').value = "";
+                document.getElementById('ytId').value = "";
+                document.getElementById('mp3File').value = "";
+            }
+        } else {
+            const errorData = await push.json();
+            throw new Error(errorData.message);
         }
-    } catch (e) { status.innerText = "Error"; status.style.color = "#f00"; }
+    } catch (e) { 
+        status.innerText = "Помилка: " + e.message; 
+        status.style.color = "#f00"; 
+    }
 }
 </script>
 </body>
