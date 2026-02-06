@@ -66,17 +66,27 @@ async function updateSite() {
     btn.disabled = true;
     status.innerText = "З'єднуюсь з GitHub...";
 
+    // ПЕРЕВІР ЦЕЙ РЯДОК ЩЕ РАЗ ПЕРЕД ЗБЕРЕЖЕННЯМ:
+    const REPO = "sawafran/my-web.github.io"; 
+
     try {
-        const fileUrl = `https://api.github.com/repos/${REPO_PATH}/contents/premium.html`;
+        // Додаємо випадковий параметр ?nocache, щоб обійти кеш
+        const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html?ref=main`;
+        
         const res = await fetch(fileUrl, {
-            headers: { 'Authorization': `token ${token}` }
+            headers: { 'Authorization': `token ${token}`, 'Cache-Control': 'no-cache' }
         });
         
-        if (!res.ok) throw new Error("Файл не знайдено. Перевір REPO_PATH (" + REPO_PATH + ")");
+        if (res.status === 404) {
+            throw new Error(`Файл не знайдено за шляхом: ${REPO}/premium.html. Перевір назву репозиторію!`);
+        }
+        
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(`Помилка GitHub: ${errData.message}`);
+        }
         
         const data = await res.json();
-        
-        // --- НОВИЙ МЕТОД ДЕКОДУВАННЯ (БЕЗ ATOB) ---
         const bytes = Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0));
         const content = new TextDecoder('utf-8').decode(bytes);
 
@@ -92,41 +102,40 @@ async function updateSite() {
     </div>`;
 
         const marker = '<div id="music-list"></div>';
-        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено! Додай його в premium.html");
+        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено в premium.html!");
         
         const updatedContent = content.replace(marker, marker + newCard);
-
-        // --- НОВИЙ МЕТОД КОДУВАННЯ НАЗАД ---
         const utf8Bytes = new TextEncoder().encode(updatedContent);
         const base64Content = btoa(String.fromCharCode(...utf8Bytes));
 
-        const updateRes = await fetch(fileUrl, {
+        const updateRes = await fetch(fileUrl.split('?')[0], {
             method: 'PUT',
             headers: { 
                 'Authorization': `token ${token}`,
                 'Content-Type': 'application/json' 
             },
             body: JSON.stringify({
-                message: `Add track: ${title}`,
+                message: `🎵 Новий трек: ${title}`,
                 content: base64Content,
-                sha: data.sha
+                sha: data.sha,
+                branch: "main" // Вказуємо гілку явно
             })
         });
 
         if(updateRes.ok) {
             status.style.color = "#0f0";
-            status.innerText = "УСПІХ! Сторінка оновлюється...";
+            status.innerText = "УСПІХ! Пісня додана. Онови сторінку через хвилину.";
             document.getElementById('trackTitle').value = "";
             document.getElementById('ytId').value = "";
         } else {
             const errJson = await updateRes.json();
-            throw new Error(errJson.message);
+            throw new Error("Не вдалося зберегти: " + errJson.message);
         }
 
     } catch (err) {
         status.style.color = "#f00";
-        status.innerText = "Помилка: " + err.message;
-        console.error("Деталі:", err);
+        status.innerText = err.message;
+        console.error(err);
     } finally {
         btn.disabled = false;
     }
