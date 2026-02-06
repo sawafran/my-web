@@ -2,133 +2,73 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Studio Admin — Final</title>
+    <title>Studio Admin</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px; }
-        .btn-del { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #444; color: #ff4444; cursor: pointer; border-radius: 5px; margin-top: 15px; font-weight: bold; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; min-height: 20px; }
-        label { font-size: 11px; color: #555; text-transform: uppercase; margin-left: 5px; }
+        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 400px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; }
+        .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; }
+        .btn-del { width: 100%; padding: 10px; background: #222; border: 1px solid #ff0000; color: #ff0000; cursor: pointer; margin-top: 10px; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-
 <div class="panel">
-    <h2 style="text-align:center; color:#f00; margin-top:0;">CONTROL PANEL</h2>
-    
-    <label>GitHub Token</label>
-    <input type="password" id="ghToken" placeholder="Встав токен">
-
-    <label>Назва пісні</label>
-    <input type="text" id="trackTitle" placeholder="Наприклад: Берізка">
-
-    <label>YouTube ID (якщо відео)</label>
-    <input type="text" id="ytId" placeholder="Наприклад: TIQzLC_5QRE">
-
-    <label>Назва файлу .mp3 (якщо з хабу)</label>
-    <input type="text" id="mp3File" placeholder="Наприклад: Берізка.mp3">
-
-    <label>Емодзі</label>
-    <select id="emoji">
-        <option value="🎵">🎵 Нота</option>
-        <option value="🔥">🔥 Вогонь</option>
-        <option value="💔">💔 Серце</option>
-    </select>
-
-    <button class="btn-pub" onclick="run('add')">ОПУБЛІКУВАТИ</button>
-    <button class="btn-del" onclick="run('delete')">ВИДАЛИТИ ОСТАННІЙ ТРЕК</button>
-    
+    <h2 style="text-align:center; color:#ff0000;">MUSIC CONTROL</h2>
+    <input type="password" id="ghToken" placeholder="GitHub Token">
+    <input type="text" id="trackTitle" placeholder="Назва пісні (для додавання або ВИДАЛЕННЯ)">
+    <input type="text" id="ytId" placeholder="YouTube ID">
+    <input type="text" id="mp3File" placeholder="Назва.mp3">
+    <button class="btn-pub" onclick="process('add')">ОПУБЛІКУВАТИ</button>
+    <button class="btn-del" onclick="process('delete')">ВИДАЛИТИ ЗА НАЗВОЮ</button>
     <p id="status"></p>
 </div>
 
 <script>
-// Допоміжна функція для кодування UTF-8 у Base64 без помилок
-function utoa(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-}
-
-// Допоміжна функція для декодування Base64 в UTF-8
-function atou(str) {
-    return decodeURIComponent(escape(atob(str)));
-}
-
-async function run(mode) {
+async function process(mode) {
     const token = document.getElementById('ghToken').value.trim();
-    const title = document.getElementById('trackTitle').value;
+    const title = document.getElementById('trackTitle').value.trim();
     const ytId = document.getElementById('ytId').value.trim();
     const mp3 = document.getElementById('mp3File').value.trim();
-    const emoji = document.getElementById('emoji').value;
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token) return alert("Спочатку встав токен!");
-    
-    status.innerText = "З'єднуюсь з GitHub...";
-    status.style.color = "#fff";
+    if(!token || !title) return alert("Введи токен та назву пісні!");
+    status.innerText = "Зв'язок...";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { 
-            headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} 
-        });
-        
-        if (!res.ok) throw new Error("Не вдалося отримати файл. Перевір токен!");
-        
+        const res = await fetch(url, { headers: {'Authorization': `token ${token}`} });
         const data = await res.json();
-        let content = atou(data.content.replace(/\s/g, ''));
-
-        const marker = '<div id="music-list"></div>';
+        let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
         if(mode === 'add') {
-            let player = "";
-            if(mp3) {
-                player = `<audio controls controlsList="nodownload" style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`;
-            } else {
-                let id = ytId.includes('v=') ? ytId.split('v=')[1].split('&')[0] : (ytId.includes('youtu.be/') ? ytId.split('youtu.be/')[1].split('?')[0] : ytId);
-                player = `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${id}?modestbranding=1" allowfullscreen></iframe></div>`;
-            }
-
-            const card = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
+            const marker = '<div id="music-list"></div>';
+            let player = mp3 
+                ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}"></audio>`
+                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}"></iframe></div>`;
+            
+            const card = `\n\n<div class="track-card"><h3>${title}</h3>${player}</div>\n`;
             content = content.replace(marker, marker + card);
         } else {
-            // Видалення
-            if(!content.includes('')) {
-                status.innerText = "Немає треків для видалення (мітку не знайдено)";
-                status.style.color = "#ffae00";
-                return;
-            }
-            // Видаляємо ПЕРШИЙ знайдений блок (найсвіжіший)
-            content = content.replace(/[\s\S]*?/, "");
+            // Видалення конкретного треку за назвою
+            const regex = new RegExp(`[\\s\\S]*?`, "g");
+            if(!content.match(regex)) throw new Error("Трек з такою назвою не знайдено!");
+            content = content.replace(regex, "");
         }
 
+        const base64 = btoa(unescape(encodeURIComponent(content)));
         const push = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                message: mode === 'add' ? `+ ${title}` : "-", 
-                content: utoa(content), 
-                sha: data.sha 
-            })
+            body: JSON.stringify({ message: mode==='add'?"+ "+title : "- "+title, content: base64, sha: data.sha })
         });
 
         if(push.ok) {
-            status.innerText = mode === 'add' ? "УСПІШНО ДОДАНО!" : "УСПІШНО ВИДАЛЕНО!";
+            status.innerText = "ГОТОВО! Онови сторінку.";
             status.style.color = "#0f0";
-            if(mode === 'add') {
-                document.getElementById('trackTitle').value = "";
-                document.getElementById('ytId').value = "";
-                document.getElementById('mp3File').value = "";
-            }
-        } else {
-            const err = await push.json();
-            throw new Error(err.message);
         }
-    } catch (e) { 
-        status.innerText = "Помилка: " + e.message; 
-        status.style.color = "#f00"; 
-    }
+    } catch (e) { status.innerText = e.message; status.style.color = "#f00"; }
 }
 </script>
 </body>
