@@ -71,7 +71,8 @@ async function updateSite() {
 
     try {
         // Додаємо випадковий параметр ?nocache, щоб обійти кеш
-        const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html?ref=main`;
+       // Зміни цей рядок у своїй функції updateSite:
+        const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         
         const res = await fetch(fileUrl, {
             headers: { 'Authorization': `token ${token}`, 'Cache-Control': 'no-cache' }
