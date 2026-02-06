@@ -53,30 +53,35 @@
         }
     }
 
-    async function updateSite() {
-        const token = document.getElementById('ghToken').value;
-        const title = document.getElementById('trackTitle').value;
-        const id = document.getElementById('ytId').value;
-        const emoji = document.getElementById('emoji').value;
-        const btn = document.getElementById('pubBtn');
-        const status = document.getElementById('status');
+ async function updateSite() {
+    const token = document.getElementById('ghToken').value.trim();
+    const title = document.getElementById('trackTitle').value;
+    const id = document.getElementById('ytId').value;
+    const emoji = document.getElementById('emoji').value;
+    const btn = document.getElementById('pubBtn');
+    const status = document.getElementById('status');
 
-        if(!token || !title || !id) return alert("Заповни Token, Назву та ID!");
+    if(!token || !title || !id) return alert("Заповни Token, Назву та ID!");
 
-        btn.disabled = true;
-        status.innerText = "З'єднуюсь з GitHub...";
+    btn.disabled = true;
+    status.innerText = "З'єднуюсь з GitHub...";
 
-        try {
-            // 1. Отримуємо вміст premium.html
-            const fileUrl = `https://api.github.com/repos/${REPO_PATH}/contents/premium.html`;
-            const res = await fetch(fileUrl, {
-                headers: { 'Authorization': `token ${token}` }
-            });
-            const data = await res.json();
-            const content = decodeURIComponent(escape(atob(data.content)));
+    try {
+        const fileUrl = `https://api.github.com/repos/${REPO_PATH}/contents/premium.html`;
+        const res = await fetch(fileUrl, {
+            headers: { 'Authorization': `token ${token}` }
+        });
+        
+        if (!res.ok) throw new Error("Не вдалося отримати файл. Перевір Token та шлях до репо.");
+        
+        const data = await res.json();
+        
+        // ПРАВИЛЬНЕ РОЗШИФРУВАННЯ ДЛЯ УКРАЇНСЬКОЇ МОВИ
+        const content = decodeURIComponent(atob(data.content).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
 
-            // 2. Створюємо код нової картки
-            const newCard = `
+        const newCard = `
     <div class="track-card">
         <div class="track-info">
             <h3>${title} ${emoji}</h3>
@@ -87,42 +92,48 @@
         </div>
     </div>`;
 
-            // 3. Вставляємо після маркера
-            const marker = '<div class="section-title" id="music-list">Слухати безкоштовно</div>';
-            if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено в premium.html!");
-            
-            const updatedContent = content.replace(marker, marker + newCard);
+        const marker = '<div id="music-list"></div>';
+        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено в premium.html!");
+        
+        const updatedContent = content.replace(marker, marker + newCard);
 
-            // 4. Відправляємо оновлений файл назад
-            const updateRes = await fetch(fileUrl, {
-                method: 'PUT',
-                headers: { 
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify({
-                    message: `New Release: ${title}`,
-                    content: btoa(unescape(encodeURIComponent(updatedContent))),
-                    sha: data.sha
-                })
-            });
+        // ПРАВИЛЬНЕ ЗАШИФРУВАННЯ НАЗАД У BASE64
+        const base64Content = btoa(encodeURIComponent(updatedContent).replace(/%([0-9A-F]{2})/g,
+            function toSolidBytes(match, p1) {
+                return String.fromCharCode('0x' + p1);
+        }));
 
-            if(updateRes.ok) {
-                status.style.color = "#0f0";
-                status.innerText = "УСПІХ! Пісня в ефірі. Оновиться за 30-60 сек.";
-                document.getElementById('trackTitle').value = "";
-                document.getElementById('ytId').value = "";
-            } else {
-                throw new Error("GitHub відхилив запит. Перевір Token.");
-            }
+        const updateRes = await fetch(fileUrl, {
+            method: 'PUT',
+            headers: { 
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+                message: `New Release: ${title}`,
+                content: base64Content,
+                sha: data.sha
+            })
+        });
 
-        } catch (err) {
-            status.style.color = "#f00";
-            status.innerText = "Error: " + err.message;
-        } finally {
-            btn.disabled = false;
+        if(updateRes.ok) {
+            status.style.color = "#0f0";
+            status.innerText = "УСПІХ! Пісня в ефірі.";
+            document.getElementById('trackTitle').value = "";
+            document.getElementById('ytId').value = "";
+        } else {
+            const errorInfo = await updateRes.json();
+            throw new Error(errorInfo.message || "Помилка при збереженні.");
         }
+
+    } catch (err) {
+        status.style.color = "#f00";
+        status.innerText = "Error: " + err.message;
+        console.error(err);
+    } finally {
+        btn.disabled = false;
     }
+}
 </script>
 </body>
 </html>
