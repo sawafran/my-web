@@ -2,41 +2,45 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Sawkoff Studio Admin</title>
+    <title>Studio Admin - Logic Fix</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
         .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #f00; width: 400px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
         .btn-add { width: 100%; padding: 15px; background: #f00; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .btn-del { width: 100%; padding: 10px; background: #000; border: 1px solid #f00; color: #f00; cursor: pointer; border-radius: 5px; margin-top: 15px; font-weight: bold; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; }
-        label { font-size: 11px; color: #555; text-transform: uppercase; }
+        .btn-del { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #f00; color: #f00; cursor: pointer; border-radius: 5px; margin-top: 15px; width: 100%; font-weight: bold; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 13px; }
+        label { font-size: 11px; color: #555; text-transform: uppercase; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
 <div class="panel">
-    <h2 style="text-align:center; color:#f00;">MUSIC EDITOR</h2>
+    <h2 style="text-align:center; color:#f00; margin: 0 0 20px 0;">STUDIO CONTROL</h2>
     
     <label>GitHub Token</label>
-    <input type="password" id="ghToken">
+    <input type="password" id="ghToken" placeholder="Встав токен">
 
-    <label>Назва треку (точно як на сайті)</label>
-    <input type="text" id="trackTitle" placeholder="Берізка">
+    <label>Назва для відображення</label>
+    <input type="text" id="trackTitle" placeholder="Наприклад: Берізка">
 
-    <label>YouTube ID</label>
+    <label>YouTube ID (якщо відео)</label>
     <input type="text" id="ytId" placeholder="Наприклад: TIQzLC_5QRE">
 
-    <label>Або назва MP3 файлу</label>
-    <input type="text" id="mp3File" placeholder="Берізка.mp3">
+    <label>Назва MP3 (якщо файл)</label>
+    <input type="text" id="mp3File" placeholder="Наприклад: track.mp3">
 
-    <button class="btn-add" onclick="handle('add')">ОПУБЛІКУВАТИ ТРЕК</button>
-    <button class="btn-del" onclick="handle('delete')">ВИДАЛИТИ ЗА НАЗВОЮ</button>
+    <button class="btn-add" onclick="manage('add')">ОПУБЛІКУВАТИ</button>
+    <button class="btn-del" onclick="manage('delete')">ВИДАЛИТИ ВЕРХНІЙ ТРЕК</button>
     
     <p id="status"></p>
 </div>
 
 <script>
-async function handle(mode) {
+// Надійне кодування UTF-8
+function utoa(str) { return btoa(unescape(encodeURIComponent(str))); }
+function atou(str) { return decodeURIComponent(escape(atob(str))); }
+
+async function manage(mode) {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value.trim();
     const ytId = document.getElementById('ytId').value.trim();
@@ -44,48 +48,47 @@ async function handle(mode) {
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token || !title) return alert("Введи токен та назву!");
-    status.innerText = "Зв'язок...";
+    if(!token) return alert("Потрібен токен!");
+    status.innerText = "Зв'язок з GitHub...";
+    status.style.color = "#fff";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
         const data = await res.json();
-        const content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-
-        const marker = '<div id="music-list"></div>';
-        let updatedContent = "";
-
-        // Використовуємо англійську версію назви для міток, щоб уникнути проблем з кодуванням
-        const trackId = btoa(unescape(encodeURIComponent(title))).replace(/=/g, "");
+        
+        // Отримуємо чистий текст premium.html
+        let content = atou(data.content.replace(/\s/g, ''));
 
         if(mode === 'add') {
-            let playerHtml = mp3 
-                ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
+            if(!title) throw new Error("Введи назву треку!");
+            
+            let player = mp3 
+                ? `<audio controls controlsList="nodownload" style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
                 : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}?modestbranding=1" allowfullscreen></iframe></div>`;
             
-            // СТВОРЮЄМО ЧІТКИЙ БЛОК З МІТКАМИ
-            const cardBlock = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
+            // ВАЖЛИВО: додаємо універсальні мітки START та END
+            const cardBlock = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
             
-            updatedContent = content.replace(marker, marker + cardBlock);
+            const marker = '<div id="music-list"></div>';
+            content = content.replace(marker, marker + cardBlock);
         } else {
-            // ВИДАЛЕННЯ: Шукаємо блок за його унікальним ID
-            const startTag = ``;
-            const endTag = ``;
-            
-            if(!content.includes(startTag)) {
-                throw new Error("Трек '" + title + "' не знайдено в коді!");
+            // ВИДАЛЕННЯ: шукаємо перший зверху блок між START та END
+            if(!content.includes('')) {
+                throw new Error("Більше немає треків для видалення!");
             }
-
-            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            updatedContent = content.replace(regex, "");
+            // Видаляємо один блок за раз (найсвіжіший)
+            content = content.replace(/[\s\S]*?/, "");
         }
 
-        const base64 = btoa(unescape(encodeURIComponent(updatedContent)));
         const push = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: mode==='add'?"+ "+title : "- "+title, content: base64, sha: data.sha })
+            body: JSON.stringify({ 
+                message: mode === 'add' ? `Add ${title}` : "Remove last", 
+                content: utoa(content), 
+                sha: data.sha 
+            })
         });
 
         if(push.ok) {
@@ -95,7 +98,10 @@ async function handle(mode) {
             const errData = await push.json();
             throw new Error(errData.message);
         }
-    } catch (e) { status.innerText = e.message; status.style.color = "#f00"; }
+    } catch (e) { 
+        status.innerText = "Помилка: " + e.message; 
+        status.style.color = "#f00"; 
+    }
 }
 </script>
 </body>
