@@ -2,126 +2,88 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sawkoff Studio - Admin</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .admin-panel { background: #111; padding: 30px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #ff0000; letter-spacing: 2px; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; margin-bottom: 20px; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 20px; }
-        button:disabled { background: #555; }
-        #status { margin-top: 15px; font-size: 14px; }
+        .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .btn-del { width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #ccc; cursor: pointer; border-radius: 5px; margin-top: 10px; font-size: 12px; }
+        #status { margin-top: 15px; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="admin-panel">
-    <h2>STUDIO ACTIVE</h2>
-    <input type="password" id="ghToken" placeholder="Встав свій GitHub Token">
+<div class="panel">
+    <h2 style="color:#f00; text-align:center;">STUDIO CONTROL</h2>
+    <input type="password" id="ghToken" placeholder="GitHub Token">
     <input type="text" id="trackTitle" placeholder="Назва пісні">
-    <input type="text" id="ytId" placeholder="YouTube ID або назва .mp3">
+    <input type="text" id="ytId" placeholder="YouTube ID або Берізка.mp3">
     <select id="emoji">
-        <option value="🏠">Дом (🏠)</option>
-        <option value="🔥">Вогонь (🔥)</option>
         <option value="🎵">Нота (🎵)</option>
+        <option value="🔥">Вогонь (🔥)</option>
         <option value="💔">Серце (💔)</option>
     </select>
-    <button id="pubBtn" onclick="updateSite()">ОПУБЛІКУВАТИ ТРЕК</button>
+    <button class="btn-pub" onclick="manageTracks('add')">ОПУБЛІКУВАТИ</button>
+    <button class="btn-del" onclick="manageTracks('delete')">ВИДАЛИТИ ОСТАННІЙ ТРЕК</button>
     <p id="status"></p>
 </div>
 
 <script>
-async function updateSite() {
+async function manageTracks(action) {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value;
     const rawId = document.getElementById('ytId').value.trim();
     const emoji = document.getElementById('emoji').value;
-    const btn = document.getElementById('pubBtn');
     const status = document.getElementById('status');
+    const REPO = "sawafran/my-web";
 
-    // Логіка визначення типу контенту (MP3 чи YouTube)
-    let cleanId = rawId;
-    let isMp3 = rawId.toLowerCase().endsWith('.mp3');
-
-    if (!isMp3) {
-        if (rawId.includes('v=')) cleanId = rawId.split('v=')[1].split('&')[0];
-        else if (rawId.includes('youtu.be/')) cleanId = rawId.split('youtu.be/')[1].split('?')[0];
-        cleanId = cleanId.split('?')[0];
-    }
-
-    if(!token || !title || !cleanId) return alert("Заповни всі поля!");
-
-    btn.disabled = true;
-    status.innerText = "З'єднуюсь з GitHub...";
-
-    const REPO = "sawafran/my-web"; 
+    if(!token) return alert("Введи токен!");
+    status.innerText = "Обробка...";
 
     try {
-        const fileUrl = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(fileUrl, {
-            headers: { 'Authorization': `token ${token}` }
-        });
-        
-        if (!res.ok) throw new Error("Файл premium.html не знайдено!");
+        const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
+        const res = await fetch(url, { headers: {'Authorization': `token ${token}`} });
         const data = await res.json();
-        
-        const bytes = Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0));
-        const content = new TextDecoder('utf-8').decode(bytes);
-
-        // Формуємо плеєр залежно від типу файлу
-        let playerHtml = '';
-        if (isMp3) {
-            playerHtml = `<audio controls style="width: 100%; margin-top: 10px;">
-                <source src="https://raw.githubusercontent.com/${REPO}/main/${cleanId}" type="audio/mpeg">
-                Ваш браузер не підтримує аудіо.
-            </audio>`;
-        } else {
-            playerHtml = `<div class="player-wrapper">
-                <iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1&rel=0" allowfullscreen></iframe>
-            </div>`;
-        }
-
-        const newCard = `
-    <div class="track-card">
-        <div class="track-info">
-            <h3>${title} ${emoji}</h3>
-            <p>SAШKOFF • 2026</p>
-        </div>
-        ${playerHtml}
-    </div>`;
+        const content = new TextDecoder('utf-8').decode(Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0)));
 
         const marker = '<div id="music-list"></div>';
-        if(!content.includes(marker)) throw new Error("Маркер music-list не знайдено!");
-        
-        const updatedContent = content.replace(marker, marker + newCard);
-        const utf8Bytes = new TextEncoder().encode(updatedContent);
-        const base64Content = btoa(String.fromCharCode(...utf8Bytes));
+        let updatedContent = "";
 
-        const updateRes = await fetch(fileUrl, {
+        if (action === 'add') {
+            let cleanId = rawId;
+            let isMp3 = rawId.toLowerCase().endsWith('.mp3');
+            if (!isMp3) {
+                if (rawId.includes('v=')) cleanId = rawId.split('v=')[1].split('&')[0];
+                else if (rawId.includes('youtu.be/')) cleanId = rawId.split('youtu.be/')[1].split('?')[0];
+                cleanId = cleanId.split('?')[0];
+            }
+
+            let player = isMp3 
+                ? `<audio controls style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${cleanId}" type="audio/mpeg"></audio>`
+                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1" allowfullscreen></iframe></div>`;
+
+            // ТУТ ПРАВИЛЬНА ВЕРСТКА ЯК У ТЕБЕ НА САЙТІ
+            const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
+            updatedContent = content.replace(marker, marker + newCard);
+        } else {
+            // ЛОГІКА ВИДАЛЕННЯ
+            if (!content.includes('')) throw new Error("Немає треків для видалення!");
+            updatedContent = content.replace(/[\s\S]*?/, "");
+        }
+
+        const base64 = btoa(String.fromCharCode(...new TextEncoder().encode(updatedContent)));
+        const updateRes = await fetch(url, {
             method: 'PUT',
-            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: `🎵 Новий реліз: ${title}`,
-                content: base64Content,
-                sha: data.sha
-            })
+            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
+            body: JSON.stringify({ message: action === 'add' ? `Add ${title}` : "Delete last track", content: base64, sha: data.sha })
         });
 
         if(updateRes.ok) {
+            status.innerText = action === 'add' ? "ДОДАНО!" : "ВИДАЛЕНО!";
             status.style.color = "#0f0";
-            status.innerText = "УСПІХ! Трек додано на сторінку.";
-        } else {
-            const errJson = await updateRes.json();
-            throw new Error(errJson.message);
         }
-
-    } catch (err) {
-        status.style.color = "#f00";
-        status.innerText = "Помилка: " + err.message;
-    } finally {
-        btn.disabled = false;
-    }
+    } catch (e) { status.innerText = e.message; status.style.color = "#f00"; }
 }
 </script>
 </body>
