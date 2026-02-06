@@ -2,161 +2,58 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAШKOFF | Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAШKOFF - Premium</title>
     <style>
-        :root { --primary: #ff0000; --bg: #050505; --card: #121212; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
+        header { padding: 40px 20px; text-align: center; width: 100%; }
+        h1 { font-size: 2.5em; letter-spacing: 5px; color: #ff0000; margin: 0; }
         
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            padding: 0;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
+        .main-content { flex: 1; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+        
+        /* КОНТЕЙНЕР ДЛЯ СПИСКУ ТРЕКІВ */
+        #music-list { display: flex; flex-direction: column; gap: 25px; width: 100%; }
 
-        .container { 
-            width: 100%; 
-            max-width: 480px; 
-            box-sizing: border-box;
-            padding: 20px; 
-        }
+        .track-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; }
+        .track-card:hover { border-color: #ff0000; }
+        .track-info h3 { margin: 0; color: #fff; font-size: 1.2em; }
+        .track-info p { color: #666; font-size: 0.9em; margin: 5px 0 15px 0; }
+        
+        .player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 10px; overflow: hidden; }
+        .player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        audio { width: 100%; height: 45px; filter: invert(1) hue-rotate(180deg) brightness(1.5); }
 
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .back-btn {
-            text-decoration: none;
-            color: #555;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-        }
-
-        .back-btn:hover { color: var(--primary); }
-
-        .track-card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 15px;
-            border: 1px solid #222;
-            margin-bottom: 25px;
-        }
-
-        .track-info {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .track-info h3 { 
-            margin: 0; 
-            font-size: 20px; 
-            color: #fff; 
-        }
-
-        .track-info p { 
-            margin: 5px 0 0; 
-            color: #777; 
-            font-size: 12px; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Контейнер плеєра (пропорція 16:9) */
-        .player-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .player-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        .footer {
-            margin-top: 30px;
-            font-size: 10px;
-            color: #333;
-            text-align: center;
-        }
-        /* Стилі для нових карток, щоб вони були як основні */
-#music-list {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-.track-card {
-    width: 100%; /* Тепер вони будуть на всю ширину контейнера */
-}
-audio {
-    width: 100%;
-    margin-top: 15px;
-    filter: invert(1); /* Робимо стандартний плеєр світлим під чорний дизайн */
-}
-        #music-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px; /* Відступ між піснями */
-    width: 100%;
-}
-.track-card {
-    width: 100%;
-    max-width: 500px; /* Робимо їх нормального розміру */
-}
-audio {
-    width: 100%;
-    margin-top: 15px;
-}
+        footer { padding: 40px 20px; color: #333; font-size: 0.8em; text-align: center; width: 100%; }
+        .back-btn { display: inline-block; color: #fff; text-decoration: none; border: 1px solid #333; padding: 10px 20px; border-radius: 25px; margin-bottom: 30px; transition: 0.3s; }
+        .back-btn:hover { background: #fff; color: #000; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <a href="index.html" class="back-btn">← На головну</a>
-        <div id="music-list"></div>
+<header>
+    <h1>PREMIUM</h1>
+</header>
 
-<div class="track-card">
-<div class="track-info"><h3>Берізка 🎵</h3><p>SAШKOFF • 2026</p></div>
-<audio controls style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/sawafran/my-web/main/Берізка.mp3" type="audio/mpeg"></audio>
-</div>
+<a href="index.html" class="back-btn">← НАЗАД</a>
 
+<div class="main-content">
+    <div id="music-list"></div>
+    
     <div class="track-card">
         <div class="track-info">
-            <h3>Берізка 🎵</h3>
+            <h3>Кохаю 🔥</h3>
             <p>SAШKOFF • 2026</p>
         </div>
         <div class="player-wrapper">
-            <iframe src="https://www.youtube.com/embed/Берізка.mp3?modestbranding=1&rel=0" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/TIQzLC_5QRE?modestbranding=1" allowfullscreen></iframe>
         </div>
     </div>
-  
-  
-    
-    <div class="footer">
-        © 2026 SAШKOFF MUSIC. UKRAINE.
-    </div>
 </div>
+
+<footer>
+    <p>SAШKOFF • 2026</p>
+</footer>
 
 </body>
 </html>
