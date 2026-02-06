@@ -5,26 +5,42 @@
     <title>Sawkoff Studio - Admin</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .btn-del { width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #ccc; cursor: pointer; border-radius: 5px; margin-top: 20px; font-size: 12px; }
-        #status { margin-top: 15px; font-size: 14px; }
+        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; }
+        h2 { color:#f00; text-align:center; text-transform: uppercase; letter-spacing: 2px; }
+        label { font-size: 12px; color: #888; margin-left: 5px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0 15px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px; }
+        .btn-del { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #888; cursor: pointer; border-radius: 5px; margin-top: 20px; font-size: 11px; }
+        #status { margin-top: 15px; font-size: 14px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2 style="color:#f00;">STUDIO CONTROL</h2>
-    <input type="password" id="ghToken" placeholder="GitHub Token">
-    <input type="text" id="trackTitle" placeholder="Назва пісні">
-    <input type="text" id="ytId" placeholder="YouTube ID або Назва.mp3">
+    <h2>STUDIO CONTROL</h2>
+    
+    <label>GitHub Token</label>
+    <input type="password" id="ghToken" placeholder="Встав токен тут">
+
+    <label>Назва пісні</label>
+    <input type="text" id="trackTitle" placeholder="Наприклад: Берізка">
+
+    <label>YouTube ID (якщо відео)</label>
+    <input type="text" id="ytId" placeholder="Наприклад: TIQzLC_5QRE">
+
+    <label>Назва MP3 файлу (якщо з хабу)</label>
+    <input type="text" id="mp3FileName" placeholder="Наприклад: Берізка.mp3">
+
+    <label>Емодзі</label>
     <select id="emoji">
         <option value="🎵">🎵 Нота</option>
         <option value="🔥">🔥 Вогонь</option>
+        <option value="💔">💔 Серце</option>
     </select>
+
     <button class="btn-pub" onclick="manageTracks('add')">ОПУБЛІКУВАТИ</button>
     <button class="btn-del" onclick="manageTracks('delete')">ВИДАЛИТИ ОСТАННІЙ ТРЕК</button>
+    
     <p id="status"></p>
 </div>
 
@@ -32,13 +48,15 @@
 async function manageTracks(action) {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value;
-    const rawId = document.getElementById('ytId').value.trim();
+    const ytId = document.getElementById('ytId').value.trim();
+    const mp3File = document.getElementById('mp3FileName').value.trim();
     const emoji = document.getElementById('emoji').value;
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
     if(!token) return alert("Введи токен!");
-    status.innerText = "З'єднуюсь з GitHub...";
+    status.innerText = "З'єднуюсь з сервером...";
+    status.style.color = "#fff";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
@@ -50,26 +68,23 @@ async function manageTracks(action) {
         let updatedContent = "";
 
         if (action === 'add') {
-            const isMp3 = rawId.toLowerCase().endsWith('.mp3');
             let playerHtml = "";
-
-            if (isMp3) {
-                // Пряме посилання на MP3 файл у твоєму репозиторії
-                playerHtml = `<audio controls style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${rawId}" type="audio/mpeg"></audio>`;
-            } else {
-                // Обробка YouTube ID
-                let cleanId = rawId;
-                if (rawId.includes('v=')) cleanId = rawId.split('v=')[1].split('&')[0];
-                else if (rawId.includes('youtu.be/')) cleanId = rawId.split('youtu.be/')[1].split('?')[0];
-                cleanId = cleanId.split('?')[0];
+            
+            if (mp3File) {
+                // Створюємо аудіо-плеєр для файлу з GitHub
+                playerHtml = `<audio controls style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3File}" type="audio/mpeg"></audio>`;
+            } else if (ytId) {
+                // Створюємо відео-плеєр для YouTube
+                let cleanId = ytId.includes('v=') ? ytId.split('v=')[1].split('&')[0] : (ytId.includes('youtu.be/') ? ytId.split('youtu.be/')[1].split('?')[0] : ytId);
                 playerHtml = `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1" allowfullscreen></iframe></div>`;
+            } else {
+                throw new Error("Заповни або YouTube ID, або назву MP3!");
             }
 
             const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
             updatedContent = content.replace(marker, marker + newCard);
         } else {
-            // Видаляємо останній доданий блок між мітками
-            if (!content.includes('')) throw new Error("Треків для видалення немає!");
+            if (!content.includes('')) throw new Error("Немає треків для видалення!");
             updatedContent = content.replace(/[\s\S]*?/, "");
         }
 
@@ -77,14 +92,20 @@ async function manageTracks(action) {
         const updateRes = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: action === 'add' ? `Add ${title}` : "Delete track", content: base64, sha: data.sha })
+            body: JSON.stringify({ message: action === 'add' ? `Update: ${title}` : "Remove last track", content: base64, sha: data.sha })
         });
 
         if(updateRes.ok) {
-            status.innerText = "УСПІХ! Зачекай 1 хв.";
+            status.innerText = "ГОТОВО! Онови сайт за хвилину.";
             status.style.color = "#0f0";
+            document.getElementById('trackTitle').value = "";
+            document.getElementById('ytId').value = "";
+            document.getElementById('mp3FileName').value = "";
         }
-    } catch (e) { status.innerText = e.message; status.style.color = "#f00"; }
+    } catch (e) { 
+        status.innerText = "Помилка: " + e.message; 
+        status.style.color = "#f00"; 
+    }
 }
 </script>
 </body>
