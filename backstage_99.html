@@ -61,7 +61,7 @@ async function updateSite() {
     const btn = document.getElementById('pubBtn');
     const status = document.getElementById('status');
 
-    if(!token || !title || !id) return alert("Заповни Token, Назву та ID!");
+    if(!token || !title || !id) return alert("Заповни всі поля!");
 
     btn.disabled = true;
     status.innerText = "З'єднуюсь з GitHub...";
@@ -72,18 +72,13 @@ async function updateSite() {
             headers: { 'Authorization': `token ${token}` }
         });
         
-        if (!res.ok) throw new Error("Не вдалося знайти файл. Перевір REPO_PATH або Token.");
+        if (!res.ok) throw new Error("Файл не знайдено. Перевір REPO_PATH (" + REPO_PATH + ")");
         
         const data = await res.json();
         
-        // --- ПРАВИЛЬНЕ РОЗШИФРУВАННЯ UTF-8 ---
-        const b64DecodeUnicode = (str) => {
-            return decodeURIComponent(atob(str).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-        };
-
-        const content = b64DecodeUnicode(data.content);
+        // --- НОВИЙ МЕТОД ДЕКОДУВАННЯ (БЕЗ ATOB) ---
+        const bytes = Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0));
+        const content = new TextDecoder('utf-8').decode(bytes);
 
         const newCard = `
     <div class="track-card">
@@ -97,18 +92,13 @@ async function updateSite() {
     </div>`;
 
         const marker = '<div id="music-list"></div>';
-        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено в premium.html!");
+        if(!content.includes(marker)) throw new Error("Маркер id='music-list' не знайдено! Додай його в premium.html");
         
         const updatedContent = content.replace(marker, marker + newCard);
 
-        // --- ПРАВИЛЬНЕ ЗАШИФРУВАННЯ НАЗАД У BASE64 ---
-        const b64EncodeUnicode = (str) => {
-            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-                return String.fromCharCode('0x' + p1);
-            }));
-        };
-
-        const base64Content = b64EncodeUnicode(updatedContent);
+        // --- НОВИЙ МЕТОД КОДУВАННЯ НАЗАД ---
+        const utf8Bytes = new TextEncoder().encode(updatedContent);
+        const base64Content = btoa(String.fromCharCode(...utf8Bytes));
 
         const updateRes = await fetch(fileUrl, {
             method: 'PUT',
@@ -117,7 +107,7 @@ async function updateSite() {
                 'Content-Type': 'application/json' 
             },
             body: JSON.stringify({
-                message: `New Release: ${title}`,
+                message: `Add track: ${title}`,
                 content: base64Content,
                 sha: data.sha
             })
@@ -125,22 +115,23 @@ async function updateSite() {
 
         if(updateRes.ok) {
             status.style.color = "#0f0";
-            status.innerText = "УСПІХ! Пісня в ефірі.";
+            status.innerText = "УСПІХ! Сторінка оновлюється...";
             document.getElementById('trackTitle').value = "";
             document.getElementById('ytId').value = "";
         } else {
-            const errorInfo = await updateRes.json();
-            throw new Error(errorInfo.message);
+            const errJson = await updateRes.json();
+            throw new Error(errJson.message);
         }
 
     } catch (err) {
         status.style.color = "#f00";
-        status.innerText = "Error: " + err.message;
-        console.error(err);
+        status.innerText = "Помилка: " + err.message;
+        console.error("Деталі:", err);
     } finally {
         btn.disabled = false;
     }
 }
+
 </script>
 </body>
 </html>
