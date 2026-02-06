@@ -5,24 +5,26 @@
     <title>Sawkoff Studio - Admin</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #ff0000; width: 100%; max-width: 400px; }
+        h2 { color:#f00; text-align:center; margin-bottom: 20px; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
         .btn-pub { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .btn-del { width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #ccc; cursor: pointer; border-radius: 5px; margin-top: 10px; font-size: 12px; }
+        .btn-del { width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #ccc; cursor: pointer; border-radius: 5px; margin-top: 15px; font-size: 12px; }
         #status { margin-top: 15px; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2 style="color:#f00; text-align:center;">STUDIO CONTROL</h2>
-    <input type="password" id="ghToken" placeholder="GitHub Token">
-    <input type="text" id="trackTitle" placeholder="Назва пісні">
-    <input type="text" id="ytId" placeholder="YouTube ID або Берізка.mp3">
+    <h2>STUDIO CONTROL</h2>
+    <input type="password" id="ghToken" placeholder="Встав GitHub Token">
+    <input type="text" id="trackTitle" placeholder="Назва пісні (Берізка)">
+    <input type="text" id="ytId" placeholder="ID YouTube АБО Берізка.mp3">
     <select id="emoji">
-        <option value="🎵">Нота (🎵)</option>
-        <option value="🔥">Вогонь (🔥)</option>
-        <option value="💔">Серце (💔)</option>
+        <option value="🎵">🎵 Нота</option>
+        <option value="🔥">🔥 Вогонь</option>
+        <option value="💔">💔 Серце</option>
+        <option value="🏠">🏠 Дім</option>
     </select>
     <button class="btn-pub" onclick="manageTracks('add')">ОПУБЛІКУВАТИ</button>
     <button class="btn-del" onclick="manageTracks('delete')">ВИДАЛИТИ ОСТАННІЙ ТРЕК</button>
@@ -40,6 +42,7 @@ async function manageTracks(action) {
 
     if(!token) return alert("Введи токен!");
     status.innerText = "Обробка...";
+    status.style.color = "#fff";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
@@ -51,23 +54,24 @@ async function manageTracks(action) {
         let updatedContent = "";
 
         if (action === 'add') {
-            let cleanId = rawId;
-            let isMp3 = rawId.toLowerCase().endsWith('.mp3');
-            if (!isMp3) {
+            let playerHtml = "";
+            const isMp3 = rawId.toLowerCase().endsWith('.mp3');
+
+            if (isMp3) {
+                // Плеєр для MP3 файлу з репозиторію
+                playerHtml = `<audio controls><source src="https://raw.githubusercontent.com/${REPO}/main/${rawId}" type="audio/mpeg"></audio>`;
+            } else {
+                // Плеєр для YouTube
+                let cleanId = rawId;
                 if (rawId.includes('v=')) cleanId = rawId.split('v=')[1].split('&')[0];
                 else if (rawId.includes('youtu.be/')) cleanId = rawId.split('youtu.be/')[1].split('?')[0];
                 cleanId = cleanId.split('?')[0];
+                playerHtml = `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1" allowfullscreen></iframe></div>`;
             }
 
-            let player = isMp3 
-                ? `<audio controls style="width:100%; margin-top:10px;"><source src="https://raw.githubusercontent.com/${REPO}/main/${cleanId}" type="audio/mpeg"></audio>`
-                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${cleanId}?modestbranding=1" allowfullscreen></iframe></div>`;
-
-            // ТУТ ПРАВИЛЬНА ВЕРСТКА ЯК У ТЕБЕ НА САЙТІ
-            const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
+            const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title} ${emoji}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
             updatedContent = content.replace(marker, marker + newCard);
         } else {
-            // ЛОГІКА ВИДАЛЕННЯ
             if (!content.includes('')) throw new Error("Немає треків для видалення!");
             updatedContent = content.replace(/[\s\S]*?/, "");
         }
@@ -80,10 +84,10 @@ async function manageTracks(action) {
         });
 
         if(updateRes.ok) {
-            status.innerText = action === 'add' ? "ДОДАНО!" : "ВИДАЛЕНО!";
+            status.innerText = action === 'add' ? "УСПІХ: Додано!" : "УСПІХ: Видалено!";
             status.style.color = "#0f0";
         }
-    } catch (e) { status.innerText = e.message; status.style.color = "#f00"; }
+    } catch (e) { status.innerText = "Помилка: " + e.message; status.style.color = "#f00"; }
 }
 </script>
 </body>
