@@ -53,7 +53,7 @@
         }
     }
 
- async function updateSite() {
+async function updateSite() {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value;
     const id = document.getElementById('ytId').value;
@@ -72,14 +72,18 @@
             headers: { 'Authorization': `token ${token}` }
         });
         
-        if (!res.ok) throw new Error("Не вдалося отримати файл. Перевір Token та шлях до репо.");
+        if (!res.ok) throw new Error("Не вдалося знайти файл. Перевір REPO_PATH або Token.");
         
         const data = await res.json();
         
-        // ПРАВИЛЬНЕ РОЗШИФРУВАННЯ ДЛЯ УКРАЇНСЬКОЇ МОВИ
-        const content = decodeURIComponent(atob(data.content).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        // --- ПРАВИЛЬНЕ РОЗШИФРУВАННЯ UTF-8 ---
+        const b64DecodeUnicode = (str) => {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        };
+
+        const content = b64DecodeUnicode(data.content);
 
         const newCard = `
     <div class="track-card">
@@ -97,11 +101,14 @@
         
         const updatedContent = content.replace(marker, marker + newCard);
 
-        // ПРАВИЛЬНЕ ЗАШИФРУВАННЯ НАЗАД У BASE64
-        const base64Content = btoa(encodeURIComponent(updatedContent).replace(/%([0-9A-F]{2})/g,
-            function toSolidBytes(match, p1) {
+        // --- ПРАВИЛЬНЕ ЗАШИФРУВАННЯ НАЗАД У BASE64 ---
+        const b64EncodeUnicode = (str) => {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
                 return String.fromCharCode('0x' + p1);
-        }));
+            }));
+        };
+
+        const base64Content = b64EncodeUnicode(updatedContent);
 
         const updateRes = await fetch(fileUrl, {
             method: 'PUT',
@@ -123,7 +130,7 @@
             document.getElementById('ytId').value = "";
         } else {
             const errorInfo = await updateRes.json();
-            throw new Error(errorInfo.message || "Помилка при збереженні.");
+            throw new Error(errorInfo.message);
         }
 
     } catch (err) {
