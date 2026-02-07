@@ -2,36 +2,39 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Studio Control</title>
+    <title>Sawkoff - Studio Admin</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .panel { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #f00; width: 100%; max-width: 400px; }
-        label { font-size: 11px; color: #555; text-transform: uppercase; margin-top: 15px; display: block; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        .btn-add { width: 100%; padding: 15px; background: #f00; color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        .btn-del { width: 100%; padding: 10px; background: transparent; color: #f00; border: 1px solid #f00; cursor: pointer; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; min-height: 20px; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .panel { background: #111; padding: 30px; border-radius: 20px; border: 1px solid #ff0000; width: 100%; max-width: 450px; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
+        h2 { color:#f00; text-align:center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
+        label { font-size: 11px; color: #555; text-transform: uppercase; margin-top: 15px; display: block; margin-left: 5px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: #f00; }
+        .btn-add { width: 100%; padding: 15px; background: #ff0000; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 16px; margin-top: 10px; }
+        .btn-del { width: 100%; padding: 12px; background: transparent; border: 1px solid #444; color: #666; cursor: pointer; border-radius: 8px; margin-top: 15px; transition: 0.3s; }
+        .btn-del:hover { border-color: #f00; color: #f00; }
+        #status { margin-top: 20px; font-size: 14px; text-align: center; font-weight: bold; min-height: 20px; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2 style="text-align:center; color:#f00; margin-top:0;">ADMIN PANEL</h2>
+    <h2>Studio Control</h2>
     
     <label>GitHub Token</label>
     <input type="password" id="ghToken" placeholder="Встав токен">
 
-    <label>Назва пісні (ID об'єкта)</label>
+    <label>Назва треку</label>
     <input type="text" id="trackTitle" placeholder="Наприклад: Берізка">
 
-    <label>YouTube ID</label>
-    <input type="text" id="ytId" placeholder="ID відео">
+    <label>YouTube Video ID</label>
+    <input type="text" id="ytId" placeholder="Наприклад: TIQzLC_5QRE">
 
-    <label>АБО Назва MP3 файлу</label>
+    <label>Назва MP3 файлу</label>
     <input type="text" id="mp3File" placeholder="Наприклад: track.mp3">
 
-    <button class="btn-add" onclick="processTrack('add')">ДОДАТИ ТРЕК</button>
-    <button class="btn-del" onclick="processTrack('delete')">ВИДАЛИТИ ЗА НАЗВОЮ</button>
+    <button class="btn-add" onclick="handleAction('add')">ОПУБЛІКУВАТИ ТРЕК</button>
+    <button class="btn-del" onclick="handleAction('delete')">ВИДАЛИТИ ЗА НАЗВОЮ</button>
     
     <p id="status"></p>
 </div>
@@ -40,7 +43,7 @@
 const utoa = (str) => btoa(unescape(encodeURIComponent(str)));
 const atou = (str) => decodeURIComponent(escape(atob(str)));
 
-async function processTrack(mode) {
+async function handleAction(mode) {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value.trim();
     const ytId = document.getElementById('ytId').value.trim();
@@ -48,49 +51,68 @@ async function processTrack(mode) {
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token || !title) return alert("Заповни токен та назву!");
-    
-    status.innerText = "З'єднуюсь...";
+    if(!token) return alert("Будь ласка, введи токен!");
+    if(!title) return alert("Назва треку обов'язкова!");
+
+    status.innerText = "З'єднуюсь з GitHub...";
     status.style.color = "#fff";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
+        
+        // Отримання файлу з унікальним параметром для обходу кешу
+        const res = await fetch(url + "?t=" + Date.now(), { 
+            headers: {'Authorization': `token ${token}`} 
+        });
+
+        if (!res.ok) throw new Error("GitHub відхилив запит. Перевір токен!");
+
         const data = await res.json();
         let content = atou(data.content.replace(/\s/g, ''));
 
-        // Створюємо унікальний ID для коду
-        const safeId = utoa(title.toLowerCase().replace(/\s+/g, '')).replace(/=/g, "");
+        // Унікальний ID для "індивідуальності"
+        const trackId = utoa(title.toLowerCase().replace(/\s+/g, '')).replace(/=/g, "");
 
         if(mode === 'add') {
             let player = mp3 
                 ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
                 : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}?modestbranding=1" allowfullscreen></iframe></div>`;
             
-            const newBlock = `\n\n<div class="track-card"><div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
+            const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
             
             const marker = '<div id="music-list"></div>';
-            content = content.replace(marker, marker + newBlock);
-        } else {
-            const start = ``;
-            const end = ``;
+            if(!content.includes(marker)) throw new Error("Маркер музики не знайдено!");
             
-            if(!content.includes(start)) throw new Error("Трек не знайдено!");
-            const regex = new RegExp(`${start}[\\s\\S]*?${end}`, "g");
+            content = content.replace(marker, marker + newCard);
+        } else {
+            const startTag = ``;
+            const endTag = ``;
+            
+            if(!content.includes(startTag)) throw new Error("Трек не знайдено!");
+            
+            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
             content = content.replace(regex, "");
         }
 
         const push = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: mode==='add'?"+ "+title : "- "+title, content: utoa(content), sha: data.sha })
+            body: JSON.stringify({ 
+                message: mode === 'add' ? `Update: ${title}` : `Remove: ${title}`, 
+                content: utoa(content), 
+                sha: data.sha 
+            })
         });
 
         if(push.ok) {
-            status.innerText = "УСПІШНО!";
+            status.innerText = "Успішно оновлено!";
             status.style.color = "#0f0";
             document.getElementById('trackTitle').value = "";
+        } else {
+            const errJson = await push.json();
+            throw new Error(errJson.message);
         }
+
     } catch (e) { 
         status.innerText = "Помилка: " + e.message; 
         status.style.color = "#f00"; 
