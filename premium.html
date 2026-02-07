@@ -1,51 +1,48 @@
-async function manageTrack(mode) {
-    const token = document.getElementById('ghToken').value.trim();
-    const title = document.getElementById('trackTitle').value.trim();
-    const ytId = document.getElementById('ytId').value.trim();
-    const mp3 = document.getElementById('mp3File').value.trim();
-    const status = document.getElementById('status');
-    const REPO = "sawafran/my-web";
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAШKOFF - Premium</title>
+    <style>
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
+        header { padding: 40px 20px; text-align: center; width: 100%; }
+        h1 { font-size: 2.5em; letter-spacing: 5px; color: #ff0000; margin: 0; text-transform: uppercase; }
+        
+        .main-content { flex: 1; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+        #music-list { display: flex; flex-direction: column; gap: 25px; width: 100%; }
 
-    if(!token || !title) return alert("Введи токен та назву!");
-    status.innerText = "Обробка...";
+        .track-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; border-left: 4px solid #f00; }
+        .track-info h3 { margin: 0; color: #fff; font-size: 1.2em; }
+        .track-info p { color: #666; font-size: 0.9em; margin: 5px 0 15px 0; }
+        
+        .player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 10px; overflow: hidden; }
+        .player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        audio { width: 100%; height: 45px; filter: invert(1) hue-rotate(180deg) brightness(1.5); margin-top: 10px; }
 
-    try {
-        const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
-        const data = await res.json();
-        let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+        footer { padding: 40px 20px; color: #333; font-size: 0.8em; text-align: center; width: 100%; }
+        .back-btn { display: inline-block; color: #fff; text-decoration: none; border: 1px solid #333; padding: 10px 20px; border-radius: 25px; margin-bottom: 30px; transition: 0.3s; margin-top: 10px; }
+        .back-btn:hover { background: #fff; color: #000; }
+    </style>
+</head>
+<body>
 
-        // Створюємо унікальний ключ для треку
-        const trackKey = title.toLowerCase().replace(/\s+/g, '');
+<header>
+    <h1>PREMIUM</h1>
+</header>
 
-        if(mode === 'add') {
-            let playerHtml = mp3 
-                ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
-                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}"></iframe></div>`;
-            
-            // СТВОРЮЄМО БЛОК З ЧІТКИМИ МЕЖАМИ
-            const fullBlock = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
-            
-            const marker = '<div id="music-list"></div>';
-            content = content.replace(marker, marker + fullBlock);
-        } else {
-            // ВИДАЛЕННЯ: Шукаємо від BEGIN до END саме цього треку
-            const startTag = ``;
-            const endTag = ``;
-            
-            if(!content.includes(startTag)) throw new Error("Трек не знайдено!");
+<a href="index.html" class="back-btn">← НАЗАД НА ГОЛОВНУ</a>
 
-            // Регулярний вираз: знайти все від мітки BEGIN до мітки END включно
-            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            content = content.replace(regex, "");
-        }
+<div class="main-content">
+    <div id="music-list"></div>
 
-        const push = await fetch(url, {
-            method: 'PUT',
-            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: mode==='add'?"+ "+title : "- "+title, content: btoa(unescape(encodeURIComponent(content))), sha: data.sha })
-        });
 
-        if(push.ok) status.innerText = "ГОТОВО!";
-    } catch (e) { status.innerText = e.message; }
-}
+
+</div>
+
+<footer>
+    <p>SAШKOFF • 2026</p>
+</footer>
+
+</body>
+</html>
