@@ -73,26 +73,30 @@ async function handleAction(mode) {
         // Унікальний ID для "індивідуальності"
         const trackId = utoa(title.toLowerCase().replace(/\s+/g, '')).replace(/=/g, "");
 
-        if(mode === 'add') {
-            let player = mp3 
-                ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
-                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}?modestbranding=1" allowfullscreen></iframe></div>`;
-            
-            const newCard = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${player}\n</div>\n`;
-            
-            const marker = '<div id="music-list"></div>';
-            if(!content.includes(marker)) throw new Error("Маркер музики не знайдено!");
-            
-            content = content.replace(marker, marker + newCard);
-        } else {
-            const startTag = ``;
-            const endTag = ``;
-            
-            if(!content.includes(startTag)) throw new Error("Трек не знайдено!");
-            
-            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            content = content.replace(regex, "");
-        }
+       if(mode === 'add') {
+    let playerHtml = mp3 
+        ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
+        : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}"></iframe></div>`;
+    
+    // Створюємо картку, де ID — це назва пісні (без пробілів)
+    // Це і є та сама "індивідуальність", про яку ти казав
+    const trackId = title.toLowerCase().replace(/\s+/g, '-'); 
+    
+    const newCard = `\n<div class="track-card" id="track-${trackId}">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
+    
+    const marker = '<div id="music-list"></div>';
+    content = content.replace(marker, marker + newCard);
+} else {
+    // Тепер видалення шукає саме цей ID
+    const trackId = title.toLowerCase().replace(/\s+/g, '-');
+    const targetId = `id="track-${trackId}"`;
+    
+    if(!content.includes(targetId)) throw new Error("Пісню '" + title + "' не знайдено!");
+    
+    // Робот знаходить весь блок від <div id="track-... до закриваючого </div>
+    const regex = new RegExp(`<div class="track-card" id="track-${trackId}">[\\s\\S]*?</div>`, "g");
+    content = content.replace(regex, "");
+}
 
         const push = await fetch(url, {
             method: 'PUT',
