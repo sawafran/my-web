@@ -1,47 +1,40 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-R4P9KM607X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4P9KM607X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-R4P9KM607X');
+    </script>
 
-  gtag('config', 'G-R4P9KM607X');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Офіційний сайт музичного артиста SAШKOFF (SAWKOFF). Слухай ексклюзивні треки та плейлисти.">
-    <title>SAШKOFF | Official Site</title>
+    
+    <title>Saшkoff — Офіційний музичний сайт | Нова українська музика 2026</title>
+    <meta name="description" content="Saшkoff (Sawkoff) — офіційний музичний сайт. Слухай нові українські хіти, сучасну музику 2026 та ексклюзивні плейлисти від Saшkoff.">
+    <meta name="keywords" content="Saшkoff, Sawkoff, українська музика, нові українські хіти, нова музика, музика 2026, слухати українське, Saшkoff офіційний сайт">
+    <meta name="author" content="Saшkoff">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #050505; --card: #121212; }
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         .container { width: 95%; max-width: 480px; padding: 40px 10px; text-align: center; }
         
-        h1 { font-size: 42px; letter-spacing: 10px; margin-bottom: 10px; font-weight: 900; }
-        .tagline { color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
+        h1 { font-size: 42px; letter-spacing: 10px; margin-bottom: 5px; font-weight: 900; text-transform: uppercase; }
+        .tagline { color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
 
-        /* Плеєр головного треку */
-        .main-video { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 15px; overflow: hidden; margin-bottom: 30px; border: 1px solid #222; }
-        .main-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .video-preview { position: relative; display: block; width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 30px; border: 1px solid #222; transition: 0.3s; }
+        .video-preview img { width: 100%; display: block; transition: 0.5s; }
+        .video-preview:hover img { transform: scale(1.05); filter: brightness(0.7); }
+        .play-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: rgba(255, 0, 0, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px; z-index: 2; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
 
-        /* Секція треків (переходи на YouTube) */
-        .section-title { text-align: left; font-size: 18px; margin: 20px 0 15px 5px; color: #eee; font-weight: bold; }
+        .section-title { text-align: left; font-size: 18px; margin: 20px 0 15px 5px; color: #eee; font-weight: bold; border-left: 3px solid var(--primary); padding-left: 10px; }
         .tracks-grid { display: grid; gap: 15px; margin-bottom: 30px; }
         
-        .track-card { 
-            background: var(--card); 
-            border-radius: 12px; 
-            padding: 12px; 
-            display: flex; 
-            align-items: center; 
-            text-decoration: none; 
-            color: white; 
-            border: 1px solid #222;
-            transition: 0.3s;
-        }
+        .track-card { background: var(--card); border-radius: 12px; padding: 12px; display: flex; align-items: center; text-decoration: none; color: white; border: 1px solid #222; transition: 0.3s; }
         .track-card:hover { border-color: var(--primary); transform: scale(1.02); background: #181818; }
         .track-img { width: 60px; height: 60px; border-radius: 8px; background: #222; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .track-info { text-align: left; flex-grow: 1; }
@@ -49,186 +42,107 @@
         .track-info p { margin: 4px 0 0; font-size: 12px; color: #777; }
         .play-icon { color: var(--primary); font-size: 20px; margin-right: 10px; }
 
-        /* Соцмережі */
         .social-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
-        .social-btn { background: var(--card); padding: 15px; border-radius: 12px; color: white; text-decoration: none; border: 1px solid #222; font-size: 20px; transition: 0.3s; }
+        .social-btn { background: var(--card); padding: 15px; border-radius: 12px; color: white; text-decoration: none; border: 1px solid #222; font-size: 20px; transition: 0.3s; text-align: center; }
         .social-btn:hover { background: var(--primary); border-color: var(--primary); }
 
-        .ad-spot { background: rgba(255,255,255,0.02); border: 1px dashed #333; border-radius: 10px; padding: 20px; margin: 20px 0; font-size: 10px; color: #444; }
-        .footer { margin-top: 40px; font-size: 10px; color: #333; letter-spacing: 1px; }
-
-        .video-preview {
-    position: relative;
-    display: block;
-    width: 100%;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 30px;
-    border: 1px solid #222;
-    transition: 0.3s;
-}
-
-.video-preview img {
-    width: 100%;
-    display: block;
-    transition: 0.5s;
-}
-
-.video-preview:hover img {
-    transform: scale(1.05); /* Ефект легкого наближення */
-    filter: brightness(0.7);
-}
-
-.play-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 70px;
-    height: 70px;
-    background: rgba(255, 0, 0, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 30px;
-    z-index: 2;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-}
-
-.video-preview:hover .play-button {
-    background: #ff0000;
-    transform: translate(-50%, -50%) scale(1.1);
-}
+        .seo-text { text-align: left; padding: 20px 10px; color: #333; font-size: 12px; line-height: 1.6; border-top: 1px solid #111; margin-top: 20px; }
+        .footer { margin-top: 40px; padding-bottom: 30px; font-size: 10px; color: #333; letter-spacing: 1px; }
+        .footer a { color: #444; text-decoration: none; border-bottom: 1px solid #222; }
     </style>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050505">
-    <link rel="apple-touch-icon" href="icon.png">
 </head>
 <body>
 
 <div class="container">
     <h1>SAШKOFF</h1>
-    <div class="tagline">Official Artist Page</div>
+    <div class="tagline">Офіційний музичний сайт</div>
 
     <a href="https://www.youtube.com/watch?v=bml8uw6M0Os" target="_blank" class="video-preview">
-        <div class="play-button">
-            <i class="fa-solid fa-play"></i>
-        </div>
-        <img src="https://img.youtube.com/vi/bml8uw6M0Os/maxresdefault.jpg" alt="SAШKOFF Video Preview">
+        <div class="play-button"><i class="fa-solid fa-play"></i></div>
+        <img src="https://img.youtube.com/vi/bml8uw6M0Os/maxresdefault.jpg" alt="Saшkoff - Нова українська музика">
     </a>
 
-    <div class="ad-spot">READ ADVERTISEMENT BLOCK</div>
-
-    <div class="section-title">Останні релізи</div>
+    <div class="section-title">Останні релізи та плейлисти</div>
+    
     <div class="tracks-grid">
         <a href="https://www.youtube.com/playlist?list=PLKbJcvAxdyPM6mjsv37NaP6qWbYpxtMCG" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: Нові пісні 2026</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
-       <a href="https://youtube.com/playlist?list=PLKbJcvAxdyPMSSnuj9xeU8AIG89I9eBnJ&si=WkinQM68GQXr-pJu" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: FraLex&AI phonk, rap,hiphop</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
-<a href="https://youtube.com/playlist?list=PLKbJcvAxdyPPIkKljXA9Pqxqbc5Vg6BvP&si=6E0YD7URx42yWq9E" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: Народна душа пісні народного стилю</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
-<a href="https://youtube.com/playlist?list=PLKbJcvAxdyPOKMkf-f3Zx06ojIxqu7X7N&si=AJiJ4SKvQrLOOhnY" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: Українські ліричні пісні пісні про кохання</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: Нові пісні 2026</h4><p>Слухати всі треки підряд</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PLKbJcvAxdyPMSSnuj9xeU8AIG89I9eBnJ&si=WkinQM68GQXr-pJu" target="_blank" class="track-card">
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: FraLex&AI phonk, rap,hiphop</h4><p>Експериментальна музика</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PLKbJcvAxdyPPIkKljXA9Pqxqbc5Vg6BvP&si=6E0YD7URx42yWq9E" target="_blank" class="track-card">
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: Народна душа</h4><p>Пісні народного стилю</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PLKbJcvAxdyPOKMkf-f3Zx06ojIxqu7X7N&si=AJiJ4SKvQrLOOhnY" target="_blank" class="track-card">
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: Українські ліричні пісні</h4><p>Пісні про кохання</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
 
         <a href="https://www.youtube.com/playlist?list=PLKbJcvAxdyPMjC-hJQ9msxgd5wHeb4YOP" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: Збірки пісень 2026</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: Збірки пісень 2026</h4><p>Найкраще за рік</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
+
         <a href="https://www.youtube.com/playlist?list=PLKbJcvAxdyPPsVmRC_gXXWHQuEFzOD0et" target="_blank" class="track-card">
-    <div class="track-img">💿</div> 
-    <div class="track-info">
-        <h4>Плейлист: Збірки пісень 2025</h4>
-        <p>Слухати всі треки підряд</p>
-    </div>
-    <i class="fa-solid fa-list-ul play-icon"></i> 
-</a>
+            <div class="track-img">💿</div> 
+            <div class="track-info"><h4>Плейлист: Збірки пісень 2025</h4><p>Архів творчості</p></div>
+            <i class="fa-solid fa-list-ul play-icon"></i> 
+        </a>
+
         <a href="premium.html" class="track-card" style="border-color: #ff0000; background: linear-gradient(45deg, #121212, #1a0000);">
-    <div class="track-img" style="background: #ff0000; color: black;">💎</div>
-    <div class="track-info">
-        <h4>Пісні онлайн</h4>
-        <p>Слухай безкоштовно на сайті</p>
-    </div>
-    <i class="fa-solid fa-crown play-icon"></i>
-</a>
+            <div class="track-img" style="background: #ff0000; color: black;">💎</div>
+            <div class="track-info"><h4>Пісні онлайн</h4><p>Слухай безкоштовно на сайті</p></div>
+            <i class="fa-solid fa-crown play-icon"></i>
+        </a>
     </div>
 
     <div class="social-links">
+        <a href="https://www.youtube.com/@sawkoff" target="_blank" class="social-btn"><i class="fa-brands fa-youtube"></i></a>
         <a href="#" class="social-btn"><i class="fa-brands fa-tiktok"></i></a>
         <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" class="social-btn"><i class="fa-brands fa-telegram"></i></a>
         <a href="#" class="social-btn"><i class="fa-brands fa-spotify"></i></a>
     </div>
 
-    <div class="ad-spot">BOTTOM ADVERTISEMENT BLOCK</div>
+    <div class="seo-text">
+        <p><strong>Saшkoff</strong> — це ваш провідник у світ сучасної української музики. На нашому <strong>офіційному музичному сайті</strong> ви знайдете <strong>нові українські хіти</strong>, <strong>нову музику 2026</strong> та улюблені ліричні пісні. Saшkoff (Sawkoff) створює контент, який об'єднує серця. Слухайте українське, підтримуйте своє!</p>
+    </div>
 
-   <div class="footer" style="margin-top: 50px; padding-bottom: 20px; font-size: 10px; color: #333;">
-    © 2026 SAШKOFF MUSIC. UKRAINE. <br>
-    <a href="privacy.html" style="color: #555; text-decoration: none; margin-top: 10px; display: inline-block; border-bottom: 1px dashed #333;">Privacy Policy</a>
-</div>
+    <div class="footer">
+        © 2026 SAШKOFF MUSIC. UKRAINE. <br><br>
+        <a href="privacy.html">Конфіденційність</a>
+    </div>
 </div>
 
-    <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("Додаток готовий до роботи!"))
-      .catch((err) => console.log("Помилка сервіс-воркера", err));
-  }
+<div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #ff0000; color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 9999; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Встановити додаток SAШKOFF</div>
+
+<script>
+(function() {
+    let dp; const b = document.getElementById('pwa-install-banner');
+    const isApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!isApp) { setTimeout(() => { b.style.display = 'block'; }, 4000); }
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dp = e; });
+    b.addEventListener('click', async () => {
+        if (dp) { dp.prompt(); const { outcome } = await dp.userChoice; if (outcome === 'accepted') b.style.display = 'none'; dp = null; }
+        else { alert("Скористайтеся меню браузера, щоб додати сайт на головний екран."); }
+    });
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(err => console.log(err)); }
+})();
 </script>
-  <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #ff0000; color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 9999; font-weight: bold; cursor: pointer;">Встановити додаток SAШKOFF</div>
 
-<script> (function() { let dp; const b = document.getElementById('pwa-install-banner'); const isApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-if (!isApp) { setTimeout(() => { b.style.display = 'block'; }, 3000); }
-
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dp = e; });
-
-b.addEventListener('click', async () => { if (dp) { dp.prompt(); const { outcome } = await dp.userChoice; if (outcome === 'accepted') b.style.display = 'none'; dp = null; } else { alert("Натисни 3 крапки в меню браузера та обери 'Встановити'"); } });
-
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } })(); </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
