@@ -55,36 +55,41 @@
         <button class="tab-btn" onclick="openTab(event, 'intl')">ЗАРУБІЖНІ</button>
         <button class="tab-btn" onclick="openTab(event, 'inst')">МІНУСОВКИ</button>
     </div>
+<div id="ua" class="tab-content active">
+    
+    <div class="track-card">
+        <h4>Не хочу тебе втрачати</h4>
+        <p>Saшkoff • HQ MP3</p>
+        <audio controls src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/Ne%20hochu%20tebe%20vtrachati.mp3?alt=media&token=a86e10df-a0c7-49e4-9519-ff0b654cd029"></audio>
+        <button class="add-btn" onclick="toggleCart('Назва першої пісні', 5, this)">
+            СКАЧАТИ — 5₴
+        </button>
+    </div>
 
-    <div id="ua" class="tab-content active">
-        <div class="track-card">
-            <h4>Що ти дівчино зробила</h4>
-            <p>Saшkoff • 2026 • HQ MP3</p>
-            <audio controls src="gs://sawkoff-music.firebasestorage.app/Що ти дівчино зробила.mp3"></audio>
-            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
-        </div>
-        </div>
-     <div id="ua" class="tab-content active">
-        <div class="track-card">
-            <h4>Заспівай мені соловей</h4>
-            <p>Saшkoff • 2026 • HQ MP3</p>
-            <audio controls src="s://sawkoff-music.firebasestorage.app/Заспівай мені соловей.mp3"></audio>
-            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
-        </div>
-        </div>
-     <div id="ua" class="tab-content active">
-        <div class="track-card">
-            <h4>Назва української пісні</h4>
-            <p>Saшkoff • 2026 • HQ MP3</p>
-            <audio controls src="ПОСИЛАННЯ_З_FIREBASE_1"></audio>
-            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
-        </div>
-        </div>
+    <div class="track-card">
+        <h4>Важко стати чужим</h4>
+        <p>Saшkoff • HQ MP3</p>
+        <audio controls src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%92%D0%B0%D0%B6%D0%BA%D0%BE%20%D1%81%D1%82%D0%B0%D1%82%D0%B8%20%D1%87%D1%83%D0%B6%D0%B8%D0%BC.mp3?alt=media&token=1e43c264-8322-46e0-80c4-dc097f44a181"></audio>
+        <button class="add-btn" onclick="toggleCart('Назва другої пісні', 5, this)">
+            СКАЧАТИ — 5₴
+        </button>
+    </div>
+
+    <div class="track-card">
+        <h4>Заспівай мені соловей</h4>
+        <p>Saшkoff • HQ MP3</p>
+        <audio controls src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9"></audio>
+        <button class="add-btn" onclick="toggleCart('Назва третьої пісні', 5, this)">
+            СКАЧАТИ — 5₴
+        </button>
+    </div>
+
+</div>
 
     <div id="intl" class="tab-content">
         <div class="track-card">
             <h4>International Track Name</h4>
-            <p>Saшkoff • 2026 • HQ MP3</p>
+            <p>FraLex • 2026 • HQ MP3</p>
             <audio controls src="ПОСИЛАННЯ_З_FIREBASE_2"></audio>
             <button class="add-btn" onclick="toggleCart('Intl Song 1', 5, this)">ДОДАТИ — 5₴</button>
         </div>
@@ -163,7 +168,7 @@
         const tracks = cart.map(i => i.name).join(", ");
         const message = `Привіт! Хочу придбати ${cart.length} треків: ${tracks}. Сума: ${sum}грн.`;
         // Тут ми можемо замінити на посилання WayForPay або твій Telegram
-        window.location.href = `https://t.me/ТВІЙ_ТЕЛЕГРАМ?text=${encodeURIComponent(message)}`;
+        window.location.href = `https://t.me/Sawkoffoficial?text=${encodeURIComponent(message)}`;
     }
 
     // Логіка для iPhone
