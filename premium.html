@@ -123,28 +123,67 @@
 <script>
     let cart = [];
 
-    function openTab(evt, tabName) {
-        let contents = document.getElementsByClassName("tab-content");
-        for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
-        let buttons = document.getElementsByClassName("tab-btn");
-        for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
-    }
-
-    function toggleCart(name, price, btn) {
-        const index = cart.findIndex(item => item.name === name);
-        if (index > -1) {
-            cart.splice(index, 1);
-            btn.innerText = `ДОДАТИ — ${price}₴`;
-            btn.classList.remove("added");
-        } else {
-            cart.push({name, price});
-            btn.innerText = "В КОШИКУ";
-            btn.classList.add("added");
+// 1. ФУНКЦІЯ ЗУПИНКИ ІНШИХ ПЛЕЄРІВ
+document.addEventListener('play', function(e){
+    var audios = document.getElementsByTagName('audio');
+    for(var i = 0, len = audios.length; i < len;i++){
+        if(audios[i] != e.target){
+            audios[i].pause();
+            audios[i].currentTime = 0; // Скидає на початок
         }
-        updateCart();
     }
+}, true);
+
+function openTab(evt, tabName) {
+    let contents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
+    let buttons = document.getElementsByClassName("tab-btn");
+    for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+function toggleCart(name, price, btn) {
+    const index = cart.findIndex(item => item.name === name);
+    if (index > -1) {
+        cart.splice(index, 1);
+        btn.innerText = `СКАЧАТИ — ${price}₴`;
+        btn.classList.remove("added");
+    } else {
+        cart.push({name, price});
+        btn.innerText = "У КОШИКУ ✓";
+        btn.classList.add("added");
+    }
+    updateCart();
+}
+
+function updateCart() {
+    const cartBar = document.getElementById("cartBar");
+    const totalPriceEl = document.getElementById("totalPrice");
+    const totalCountEl = document.getElementById("totalCount");
+
+    if (cart.length > 0) {
+        cartBar.style.display = "block";
+        let sum = cart.length * 5;
+        if (cart.length >= 15) sum = 50; 
+        
+        totalPriceEl.innerText = sum + "₴";
+        totalCountEl.innerText = "Вибрано: " + cart.length;
+    } else {
+        cartBar.style.display = "none";
+    }
+}
+
+function processOrder() {
+    const sum = (cart.length >= 15) ? 50 : cart.length * 5;
+    // Отримуємо список реальних назв пісень
+    const tracksList = cart.map(item => item.name).join("\n- ");
+    
+    const message = `Нове замовлення! 🎵\n\nСписок пісень:\n- ${tracksList}\n\nВсього пісень: ${cart.length}\nДо сплати: ${sum}грн.`;
+    
+    // ЗАМІНИ 'ТВІЙ_НІК_ТГ' на свій нік без @
+    window.location.href = `https://t.me/ТВІЙ_НІК_ТГ?text=${encodeURIComponent(message)}`;
+}
 
     function updateCart() {
         const cartBar = document.getElementById("cartBar");
