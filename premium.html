@@ -3,46 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAШKOFF - Premium</title>
+    <title>SAШKOFF Premium | Музика онлайн</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
-        header { padding: 40px 20px; text-align: center; width: 100%; }
-        h1 { font-size: 2.5em; letter-spacing: 5px; color: #ff0000; margin: 0; text-transform: uppercase; }
+        :root { --primary: #ff0000; --bg: #050505; --card: #121212; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 100px; }
+        .container { width: 95%; max-width: 500px; margin: 0 auto; padding: 20px 10px; text-align: center; }
         
-        .main-content { flex: 1; width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
-        #music-list { display: flex; flex-direction: column; gap: 25px; width: 100%; }
+        h1 { font-size: 28px; letter-spacing: 3px; margin: 20px 0; font-weight: 900; color: var(--primary); }
+        .back-link { color: #666; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 20px; transition: 0.3s; }
+        .back-link:hover { color: white; }
 
-        .track-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; border-left: 4px solid #f00; }
-        .track-info h3 { margin: 0; color: #fff; font-size: 1.2em; }
-        .track-info p { color: #666; font-size: 0.9em; margin: 5px 0 15px 0; }
+        /* Вкладки (Tabs) */
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 25px; border-bottom: 1px solid #222; }
+        .tab-btn { background: none; border: none; color: #666; padding: 10px; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; font-size: 13px; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; text-align: left; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Картка треку */
+        .track-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #222; position: relative; }
+        .track-card h4 { margin: 0 0 5px 0; font-size: 16px; width: 80%; }
+        .track-card p { margin: 0 0 10px 0; font-size: 12px; color: #555; }
         
-        .player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 10px; overflow: hidden; }
-        .player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        audio { width: 100%; height: 45px; filter: invert(1) hue-rotate(180deg) brightness(1.5); margin-top: 10px; }
+        audio { width: 100%; height: 30px; margin-bottom: 10px; filter: invert(1); opacity: 0.7; }
 
-        footer { padding: 40px 20px; color: #333; font-size: 0.8em; text-align: center; width: 100%; }
-        .back-btn { display: inline-block; color: #fff; text-decoration: none; border: 1px solid #333; padding: 10px 20px; border-radius: 25px; margin-bottom: 30px; transition: 0.3s; margin-top: 10px; }
-        .back-btn:hover { background: #fff; color: #000; }
+        .add-btn { background: #1a1a1a; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; width: 100%; transition: 0.3s; font-weight: bold; }
+        .add-btn.added { background: var(--primary); border-color: var(--primary); }
+
+        /* Фіксований кошик внизу */
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px; border-top: 2px solid var(--primary); display: none; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.8); }
+        .cart-info { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; }
+        .total-price { font-size: 18px; font-weight: bold; }
+        .total-count { font-size: 12px; color: #aaa; }
+        .buy-btn { background: var(--primary); color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+
+        /* Повідомлення для iPhone */
+        #ios-prompt { display: none; background: #fff; color: #000; position: fixed; bottom: 80px; left: 5%; width: 90%; padding: 15px; border-radius: 12px; font-size: 13px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>PREMIUM</h1>
-</header>
+<div class="container">
+    <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Назад</a>
+    <h1>PREMIUM SHOP</h1>
 
-<a href="index.html" class="back-btn">← НАЗАД НА ГОЛОВНУ</a>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'ua')">УКРАЇНСЬКІ</button>
+        <button class="tab-btn" onclick="openTab(event, 'intl')">ЗАРУБІЖНІ</button>
+        <button class="tab-btn" onclick="openTab(event, 'inst')">МІНУСОВКИ</button>
+    </div>
 
-<div class="main-content">
-    <div id="music-list"></div>
+    <div id="ua" class="tab-content active">
+        <div class="track-card">
+            <h4>Що ти дівчино зробила</h4>
+            <p>Saшkoff • 2026 • HQ MP3</p>
+            <audio controls src="gs://sawkoff-music.firebasestorage.app/Що ти дівчино зробила.mp3"></audio>
+            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
+        </div>
+        </div>
+     <div id="ua" class="tab-content active">
+        <div class="track-card">
+            <h4>Заспівай мені соловей</h4>
+            <p>Saшkoff • 2026 • HQ MP3</p>
+            <audio controls src="s://sawkoff-music.firebasestorage.app/Заспівай мені соловей.mp3"></audio>
+            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
+        </div>
+        </div>
+     <div id="ua" class="tab-content active">
+        <div class="track-card">
+            <h4>Назва української пісні</h4>
+            <p>Saшkoff • 2026 • HQ MP3</p>
+            <audio controls src="ПОСИЛАННЯ_З_FIREBASE_1"></audio>
+            <button class="add-btn" onclick="toggleCart('Пісня 1', 5, this)">ДОДАТИ — 5₴</button>
+        </div>
+        </div>
 
+    <div id="intl" class="tab-content">
+        <div class="track-card">
+            <h4>International Track Name</h4>
+            <p>Saшkoff • 2026 • HQ MP3</p>
+            <audio controls src="ПОСИЛАННЯ_З_FIREBASE_2"></audio>
+            <button class="add-btn" onclick="toggleCart('Intl Song 1', 5, this)">ДОДАТИ — 5₴</button>
+        </div>
+    </div>
 
-
+    <div id="inst" class="tab-content">
+        <div class="track-card">
+            <h4>Мінусовка: Назва пісні</h4>
+            <p>Інструментал • Pro Qualtity</p>
+            <audio controls src="ПОСИЛАННЯ_З_FIREBASE_3"></audio>
+            <button class="add-btn" onclick="toggleCart('Мінус 1', 5, this)">ДОДАТИ — 5₴</button>
+        </div>
+    </div>
 </div>
 
-<footer>
-    <p>SAШKOFF • 2026</p>
-</footer>
+<div class="cart-bar" id="cartBar">
+    <div class="cart-info">
+        <div style="text-align: left;">
+            <div class="total-price" id="totalPrice">0₴</div>
+            <div class="total-count" id="totalCount">Вибрано: 0</div>
+        </div>
+        <a href="#" class="buy-btn" id="buyLink" onclick="processOrder()">ОФОРМИТИ</a>
+    </div>
+</div>
+
+<div id="ios-prompt">
+    <div style="float:right; cursor:pointer" onclick="this.parentElement.style.display='none'">✕</div>
+    Щоб встановити додаток SAШKOFF на iPhone: натисніть <strong><i class="fa-solid fa-arrow-up-from-bracket"></i> Поділитися</strong> та оберіть <strong>'Додати на початковий екран'</strong>.
+</div>
+
+<script>
+    let cart = [];
+
+    function openTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
+        let buttons = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function toggleCart(name, price, btn) {
+        const index = cart.findIndex(item => item.name === name);
+        if (index > -1) {
+            cart.splice(index, 1);
+            btn.innerText = `ДОДАТИ — ${price}₴`;
+            btn.classList.remove("added");
+        } else {
+            cart.push({name, price});
+            btn.innerText = "В КОШИКУ";
+            btn.classList.add("added");
+        }
+        updateCart();
+    }
+
+    function updateCart() {
+        const cartBar = document.getElementById("cartBar");
+        const totalPriceEl = document.getElementById("totalPrice");
+        const totalCountEl = document.getElementById("totalCount");
+
+        if (cart.length > 0) {
+            cartBar.style.display = "block";
+            let sum = cart.length * 5;
+            if (cart.length >= 15) sum = 50; // Твоя акційна ціна
+            
+            totalPriceEl.innerText = sum + "₴";
+            totalCountEl.innerText = "Вибрано: " + cart.length;
+        } else {
+            cartBar.style.display = "none";
+        }
+    }
+
+    function processOrder() {
+        const sum = (cart.length >= 15) ? 50 : cart.length * 5;
+        const tracks = cart.map(i => i.name).join(", ");
+        const message = `Привіт! Хочу придбати ${cart.length} треків: ${tracks}. Сума: ${sum}грн.`;
+        // Тут ми можемо замінити на посилання WayForPay або твій Telegram
+        window.location.href = `https://t.me/ТВІЙ_ТЕЛЕГРАМ?text=${encodeURIComponent(message)}`;
+    }
+
+    // Логіка для iPhone
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isIos && !isStandalone) {
+        setTimeout(() => { document.getElementById('ios-prompt').style.display = 'block'; }, 3000);
+    }
+</script>
 
 </body>
 </html>
