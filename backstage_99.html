@@ -2,111 +2,60 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAШKOFF | Backstage Admin</title>
+    <title>SAШKOFF ADMIN TEST</title>
     <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .admin-panel { background: #161616; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #ff0000; letter-spacing: 2px; text-transform: uppercase; margin-top: 0; }
-        label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
-        input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #222; background: #222; color: #fff; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #ff0000; }
-        button { background: #ff0000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #cc0000; transform: translateY(-1px); }
-        .del-btn { background: #333; margin-top: 5px; }
-        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #00ff00; min-height: 20px; }
+        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        input { width: 80%; max-width: 400px; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #333; color: white; }
+        button { padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #status { margin-top: 20px; color: yellow; }
     </style>
 </head>
 <body>
-
-<div class="admin-panel">
-    <h2>Backstage</h2>
-    
-    <label>GitHub Token</label>
-    <input type="password" id="ghToken" placeholder="впиши токен">
-    
-    <label>Назва пісні</label>
-    <input type="text" id="trackTitle" placeholder="Наприклад: Не хочу втрачати">
-    
-    <label>Категорія</label>
-    <select id="trackCategory">
-        <option value="ua">🇺🇦 Українська</option>
-        <option value="intl">🌍 Зарубіжна</option>
-        <option value="inst">🎹 Мінусовка</option>
-    </select>
-    
-    <label>Firebase Download URL</label>
-    <input type="text" id="fireUrl" placeholder="https://firebasestorage...">
-
-    <button onclick="manageTrack('add')">ДОДАТИ НА САЙТ</button>
-    <button onclick="manageTrack('del')" class="del-btn">ВИДАЛИТИ ЗА НАЗВОЮ</button>
-    
+    <h2>Test Admin Panel</h2>
+    <input type="password" id="ghToken" placeholder="GitHub Token">
+    <input type="text" id="trackTitle" placeholder="Назва пісні">
+    <input type="text" id="fireUrl" placeholder="Посилання з Firebase (https://...)">
+    <br>
+    <button onclick="testPush()">ПЕРЕВІРИТИ ЗВ'ЯЗОК</button>
     <div id="status"></div>
-</div>
 
-<script>
-async function manageTrack(mode) {
-    const token = document.getElementById('ghToken').value.trim();
-    const title = document.getElementById('trackTitle').value.trim();
-    const category = document.getElementById('trackCategory').value;
-    const fireUrl = document.getElementById('fireUrl').value.trim();
-    const status = document.getElementById('status');
-    const REPO = "sawafran/my-web";
+    <script>
+    async function testPush() {
+        const token = document.getElementById('ghToken').value.trim();
+        const title = document.getElementById('trackTitle').value.trim();
+        const fireUrl = document.getElementById('fireUrl').value.trim();
+        const status = document.getElementById('status');
+        
+        // ПЕРЕВІР ТУТ НАЗВУ!
+        const REPO = "sawafran/my-web"; 
 
-    if(!token || !title || (mode === 'add' && !fireUrl)) {
-        status.style.color = "red";
-        status.innerText = "Заповни всі поля!";
-        return;
-    }
-    
-    status.style.color = "yellow";
-    status.innerText = "Зв'язок з GitHub...";
+        status.innerText = "Спроба з'єднання...";
 
-    try {
-        const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
-        const data = await res.json();
-        let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+        try {
+            const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
 
-        const startTag = ``;
-        const endTag = ``;
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(`GitHub каже: ${errorData.message}`);
+            }
 
-        if(mode === 'add') {
-            const trackHtml = `\n${startTag}\n<div class="track-card"><h4>${title}</h4><p>Saшkoff • 2026 • HQ MP3</p><audio controls controlsList="nodownload" oncontextmenu="return false;" src="${fireUrl}"></audio><button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button></div>\n${endTag}\n`;
-            const marker = `<div id="marker-${category}"></div>`;
+            status.style.color = "lime";
+            status.innerText = "Зв'язок є! Файл знайдено. Тепер можеш спробувати додати пісню через повну адмінку.";
             
-            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено!");
-            content = content.replace(marker, marker + trackHtml);
-        } else {
-            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            if(!content.match(regex)) throw new Error("Трек не знайдено!");
-            content = content.replace(regex, "");
+        } catch (e) {
+            status.style.color = "red";
+            status.innerText = "Помилка: " + e.message;
+            console.error(e);
         }
-
-        const push = await fetch(url, {
-            method: 'PUT',
-            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                message: mode==='add' ? `+ ${title}` : `- ${title}`, 
-                content: btoa(unescape(encodeURIComponent(content))), 
-                sha: data.sha 
-            })
-        });
-
-        if(push.ok) {
-            status.style.color = "#00ff00";
-            status.innerText = "ГОТОВО! ПЕРЕВІР САЙТ.";
-            document.getElementById('trackTitle').value = "";
-            document.getElementById('fireUrl').value = "";
-        } else {
-            throw new Error("GitHub відхилив запит");
-        }
-    } catch (e) { 
-        status.style.color = "red";
-        status.innerText = "Помилка: " + e.message; 
     }
-}
-</script>
-
+    </script>
 </body>
 </html>
