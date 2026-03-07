@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAШKOFF PREMIUM</title>
+    <title>Saшkoff Online music</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #0b0b0b; --line: #1a1a1a; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 140px; }
         
-        /* ШАПКА З КНОПКОЮ НАЗАД */
         header { background: linear-gradient(180deg, #1f0000 0%, #0b0b0b 100%); padding: 35px 15px; text-align: center; border-bottom: 1px solid #333; position: relative; }
         .btn-back { position: absolute; top: 20px; left: 20px; color: #888; text-decoration: none; font-size: 24px; }
-        header h1 { font-size: 24px; margin: 0; letter-spacing: 4px; color: #fff; text-transform: uppercase; font-weight: 900; }
+        header h1 { font-size: 22px; margin: 0; letter-spacing: 2px; color: #fff; text-transform: uppercase; font-weight: 900; }
+        header p { font-size: 10px; color: #666; margin-top: 5px; letter-spacing: 3px; }
 
         .tabs-nav { display: flex; background: #111; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
         .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
@@ -21,21 +21,23 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* СПИСОК ТРЕКІВ */
-        .track-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--line); position: relative; width: 100%; box-sizing: border-box; }
-        .track-row.is-playing { background: rgba(255,0,0,0.1); }
+        .track-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--line); position: relative; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        .track-row.is-playing { background: rgba(255,0,0,0.15); }
 
         .play-trigger { width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; cursor: pointer; color: var(--primary); border: 1px solid #333; flex-shrink: 0; }
         
+        /* АНІМАЦІЯ ЕКВАЛАЙЗЕРА */
+        .track-row.is-playing .play-trigger i { display: none; }
+        .track-row.is-playing .play-trigger::after { content: "\f028"; font-family: "Font Awesome 6 Free"; font-weight: 900; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+
         .track-info-mini { flex: 1; cursor: pointer; min-width: 0; padding-right: 60px; }
         .track-info-mini h4 { margin: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-info-mini p { margin: 3px 0 0; font-size: 11px; color: #555; }
 
-        /* КОРЗИНА - СУВОРО СПРАВА */
-        .buy-icon-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #1a1a1a; border: 1px solid #333; color: #888; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; }
+        .buy-icon-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #1a1a1a; border: 1px solid #333; color: #888; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; z-index: 5; }
         .buy-icon-btn.added { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ПЛЕЄР ВНИЗУ */
         #bottomPlayer { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; border-top: 2px solid var(--primary); padding: 15px 20px; z-index: 9999; display: none; box-shadow: 0 -10px 30px rgba(0,0,0,1); }
         .player-flex { display: flex; align-items: center; gap: 15px; max-width: 600px; margin: 0 auto; }
         .p-btn { font-size: 30px; color: var(--primary); cursor: pointer; width: 35px; text-align: center; }
@@ -52,7 +54,8 @@
 
 <header>
     <a href="index.html" class="btn-back"><i class="fa-solid fa-circle-chevron-left"></i></a>
-    <h1>SAШKOFF PREMIUM</h1>
+    <h1>Saшkoff Online music</h1>
+    <p>PREMIUM ACCESS</p>
 </header>
 
 <div class="tabs-nav">
@@ -62,37 +65,7 @@
 </div>
 
 <div class="container">
-    <div id="ua" class="tab-content active"><div id="marker-ua"></div>
-
-<div class="track-row">
-    <div class="play-trigger" onclick="playMusic(`Не хочу тебе втрачати`, `https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/Ne%20hochu%20tebe%20vtrachati.mp3?alt=media&token=a86e10df-a0c7-49e4-9519-ff0b654cd029`)">
-        <i class="fa-solid fa-play"></i>
-    </div>
-    <div class="track-info-mini" onclick="playMusic(`Не хочу тебе втрачати`, `https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/Ne%20hochu%20tebe%20vtrachati.mp3?alt=media&token=a86e10df-a0c7-49e4-9519-ff0b654cd029`)">
-        <h4>Не хочу тебе втрачати</h4>
-        <p>Saшkoff • 2026 • Premium HQ</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart(`Не хочу тебе втрачати`, this, event)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>
-
-
-
-<div class="track-row">
-    <div class="play-trigger" onclick="playMusic(`Заспівай мені соловей`, `https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9`)">
-        <i class="fa-solid fa-play"></i>
-    </div>
-    <div class="track-info-mini" onclick="playMusic(`Заспівай мені соловей`, `https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9`)">
-        <h4>Заспівай мені соловей</h4>
-        <p>Saшkoff • 2026 • Premium HQ</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart(`Заспівай мені соловей`, this, event)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>
-
-</div>
+    <div id="ua" class="tab-content active"><div id="marker-ua"></div></div>
     <div id="intl" class="tab-content"><div id="marker-intl"></div></div>
     <div id="inst" class="tab-content"><div id="marker-inst"></div></div>
 </div>
@@ -130,13 +103,21 @@ function openTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ОСНОВНА ФУНКЦІЯ ЗАПУСКУ
 function playMusic(title, url) {
+    // Знімаємо позначку з усіх рядків
+    document.querySelectorAll('.track-row').forEach(row => row.classList.remove('is-playing'));
+    
+    // Знаходимо рядок, на який натиснули, за назвою
+    const rows = document.querySelectorAll('.track-row');
+    rows.forEach(row => {
+        if(row.innerHTML.includes(title)) row.classList.add('is-playing');
+    });
+
     if (gAudio.src !== url) {
         gAudio.src = url;
         pTitle.innerText = title;
         bPlayer.style.display = 'block';
-        gAudio.play().catch(e => console.log("Потрібна дія користувача"));
+        gAudio.play();
         pIcon.className = 'fa-solid fa-pause';
     } else {
         togglePlay();
@@ -144,9 +125,26 @@ function playMusic(title, url) {
 }
 
 function togglePlay() {
-    if (gAudio.paused) { gAudio.play(); pIcon.className = 'fa-solid fa-pause'; }
-    else { gAudio.pause(); pIcon.className = 'fa-solid fa-play'; }
+    if (gAudio.paused) { 
+        gAudio.play(); 
+        pIcon.className = 'fa-solid fa-pause';
+    } else { 
+        gAudio.pause(); 
+        pIcon.className = 'fa-solid fa-play';
+    }
 }
+
+// АВТОМАТИЧНЕ ПЕРЕМИКАННЯ
+gAudio.onended = () => {
+    let currentPlayingRow = document.querySelector('.track-row.is-playing');
+    if (currentPlayingRow) {
+        let nextRow = currentPlayingRow.nextElementSibling;
+        if (nextRow && nextRow.classList.contains('track-row')) {
+            let nextPlayBtn = nextRow.querySelector('.play-trigger');
+            if (nextPlayBtn) nextPlayBtn.click();
+        }
+    }
+};
 
 function seek(s) { if(!isNaN(gAudio.duration)) gAudio.currentTime = (s.value / 100) * gAudio.duration; }
 
@@ -163,7 +161,11 @@ function fmt(s) {
     return m + ":" + (sc < 10 ? "0" + sc : sc);
 }
 
-function stopAll() { bPlayer.style.display = 'none'; gAudio.pause(); gAudio.src = ""; }
+function stopAll() { 
+    bPlayer.style.display = 'none'; 
+    gAudio.pause(); 
+    document.querySelectorAll('.track-row').forEach(row => row.classList.remove('is-playing'));
+}
 
 function toCart(name, btn, ev) {
     ev.stopPropagation();
