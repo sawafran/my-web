@@ -13,7 +13,7 @@
         button { background: #ff0000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #cc0000; transform: translateY(-1px); }
         .del-btn { background: #333; }
-        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #00ff00; min-height: 20px; }
+        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #ffff00; min-height: 20px; }
     </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
     <input type="password" id="ghToken" placeholder="Встав свій токен">
     
     <label>Назва пісні</label>
-    <input type="text" id="trackTitle" placeholder="Літній вечір...">
+    <input type="text" id="trackTitle" placeholder="Введіть назву...">
     
     <label>Категорія</label>
     <select id="trackCategory">
@@ -53,23 +53,20 @@ async function manageTrack(mode) {
     const REPO = "sawafran/my-web";
 
     if(!token || !title) return alert("Заповни токен та назву!");
-    status.style.color = "yellow";
-    status.innerText = "З'єднуюсь з GitHub...";
+    status.innerText = "Обробка...";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
         
-        // КРОК 1: Отримуємо файл
+        // ВИПРАВЛЕНО: Прибрали Cache-Control, щоб не було помилки CORS
         const res = await fetch(url, {
-            method: 'GET',
             headers: {
                 'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Cache-Control': 'no-cache'
+                'Accept': 'application/vnd.github.v3+json'
             }
         });
 
-        if (!res.ok) throw new Error("Помилка доступу (перевір токен або назву репозиторію)");
+        if (!res.ok) throw new Error("Помилка доступу до GitHub");
 
         const data = await res.json();
         let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
@@ -81,14 +78,13 @@ async function manageTrack(mode) {
             const trackHtml = `\n${startTag}\n<div class="track-card"><h4>${title}</h4><p>Saшkoff • 2026</p><audio controls controlsList="nodownload" oncontextmenu="return false;" src="${fireUrl}"></audio><button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button></div>\n${endTag}\n`;
             const marker = `<div id="marker-${category}"></div>`;
             
-            if (!content.includes(marker)) throw new Error("Маркер категорії не знайдено в premium.html!");
+            if (!content.includes(marker)) throw new Error("Маркер категорії не знайдено!");
             content = content.replace(marker, marker + trackHtml);
         } else {
             const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
             content = content.replace(regex, "");
         }
 
-        // КРОК 2: Зберігаємо зміни
         const push = await fetch(url, {
             method: 'PUT',
             headers: {
@@ -103,16 +99,14 @@ async function manageTrack(mode) {
         });
 
         if (push.ok) {
-            status.style.color = "#00ff00";
             status.innerText = "УСПІШНО ОПУБЛІКОВАНО!";
             document.getElementById('trackTitle').value = "";
             document.getElementById('fireUrl').value = "";
         } else {
-            throw new Error("GitHub відхилив запит на запис");
+            throw new Error("Не вдалося зберегти на GitHub");
         }
 
     } catch (e) {
-        status.style.color = "red";
         status.innerText = "Помилка: " + e.message;
         console.error(e);
     }
