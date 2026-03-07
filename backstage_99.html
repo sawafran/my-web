@@ -1,61 +1,64 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>SAШKOFF ADMIN TEST</title>
-    <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        input { width: 80%; max-width: 400px; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #333; color: white; }
-        button { padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #status { margin-top: 20px; color: yellow; }
-    </style>
-</head>
-<body>
-    <h2>Test Admin Panel</h2>
-    <input type="password" id="ghToken" placeholder="GitHub Token">
-    <input type="text" id="trackTitle" placeholder="Назва пісні">
-    <input type="text" id="fireUrl" placeholder="Посилання з Firebase (https://...)">
-    <br>
-    <button onclick="testPush()">ПЕРЕВІРИТИ ЗВ'ЯЗОК</button>
-    <div id="status"></div>
+async function manageTrack(mode) {
+    const token = document.getElementById('ghToken').value.trim();
+    const title = document.getElementById('trackTitle').value.trim();
+    const category = document.getElementById('trackCategory').value; //ua, intl, inst
+    const fireUrl = document.getElementById('fireUrl').value.trim();
+    const status = document.getElementById('status');
+    const REPO = "sawafran/my-web";
 
-    <script>
-    async function testPush() {
-        const token = document.getElementById('ghToken').value.trim();
-        const title = document.getElementById('trackTitle').value.trim();
-        const fireUrl = document.getElementById('fireUrl').value.trim();
-        const status = document.getElementById('status');
+    if(!token || !title) return alert("Введи токен та назву!");
+    status.innerText = "Обробка...";
+
+    try {
+        const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
+        // Використовуємо твій перевірений метод запиту
+        const res = await fetch(url, { 
+            headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} 
+        });
         
-        // ПЕРЕВІР ТУТ НАЗВУ!
-        const REPO = "sawafran/my-web"; 
+        if(!res.ok) throw new Error("Помилка доступу! Перевір токен.");
+        
+        const data = await res.json();
+        // Твоє розкодування
+        let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
-        status.innerText = "Спроба з'єднання...";
+        const startTag = ``;
+        const endTag = ``;
 
-        try {
-            const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-            const res = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Cache-Control': 'no-cache'
-                }
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(`GitHub каже: ${errorData.message}`);
-            }
-
-            status.style.color = "lime";
-            status.innerText = "Зв'язок є! Файл знайдено. Тепер можеш спробувати додати пісню через повну адмінку.";
+        if(mode === 'add') {
+            // Твій формат блоку з нашими новими правками (плеєр + кошик)
+            const fullBlock = `\n${startTag}\n<div class="track-card"><h4>${title}</h4><p>Saшkoff • 2026</p><audio controls controlsList="nodownload" src="${fireUrl}"></audio><button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button></div>\n${endTag}\n`;
             
-        } catch (e) {
-            status.style.color = "red";
-            status.innerText = "Помилка: " + e.message;
-            console.error(e);
+            // Шукаємо маркер відповідної категорії
+            const marker = `<div id="marker-${category}"></div>`;
+            if(!content.includes(marker)) throw new Error("Не знайдено маркер категорії в premium.html");
+            
+            content = content.replace(marker, marker + fullBlock);
+        } else {
+            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
+            content = content.replace(regex, "");
         }
+
+        // Твій метод відправки (PUT)
+        const push = await fetch(url, {
+            method: 'PUT',
+            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                message: mode === 'add' ? "+ " + title : "- " + title, 
+                content: btoa(unescape(encodeURIComponent(content))), 
+                sha: data.sha 
+            })
+        });
+
+        if(push.ok) {
+            status.innerText = "ГОТОВО!";
+            document.getElementById('trackTitle').value = "";
+            document.getElementById('fireUrl').value = "";
+        } else {
+            status.innerText = "Помилка збереження!";
+        }
+    } catch (e) { 
+        status.innerText = "Помилка: " + e.message; 
+        console.error(e);
     }
-    </script>
-</body>
-</html>
+}
