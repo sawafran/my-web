@@ -52,24 +52,33 @@ async function manageTrack(mode) {
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token || !title || (mode === 'add' && !fireUrl)) return alert("Заповни всі поля!");
+    if(!token || !title || (mode === 'add' && !fireUrl)) {
+        return alert("Заповни всі поля!");
+    }
+    
     status.innerText = "Зв'язок з GitHub...";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
-        if(!res.ok) throw new Error("Не вдалося отримати файл. Перевір токен!");
-        
+        const res = await fetch(url, { 
+            headers: {
+                'Authorization': `token ${token}`,
+                'Cache-Control': 'no-cache'
+            } 
+        });
+
+        if(!res.ok) throw new Error("Помилка доступу! Перевір токен.");
+
         const data = await res.json();
         let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
-        // ВАЖЛИВО: Мітки не повинні бути порожніми!
         const startTag = ``;
         const endTag = ``;
 
         if(mode === 'add') {
             if(content.includes(startTag)) throw new Error("Пісня з такою назвою вже є!");
 
+            // ФОРМАТ НОВОГО ДИЗАЙНУ (Тонкий рядок)
             const trackHtml = `\n${startTag}\n<div class="track-row">
     <div class="play-btn" onclick="playMusic(this)">
         <i class="fa-solid fa-play"></i>
@@ -85,21 +94,23 @@ async function manageTrack(mode) {
 </div>\n${endTag}\n`;
 
             const marker = `<div id="marker-${category}"></div>`;
-            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено в premium.html!");
+            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено!");
             
             content = content.replace(marker, marker + trackHtml);
         } else {
-            // Видалення
             const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            if(!content.match(regex)) throw new Error("Пісню не знайдено для видалення!");
+            if(!content.match(regex)) throw new Error("Пісню не знайдено!");
             content = content.replace(regex, "");
         }
 
         const push = await fetch(url, {
             method: 'PUT',
-            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
+            headers: {
+                'Authorization': `token ${token}`, 
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ 
-                message: mode==='add' ? `+ ${title}` : `- ${title}`, 
+                message: mode === 'add' ? `+ ${title}` : `- ${title}`, 
                 content: btoa(unescape(encodeURIComponent(content))), 
                 sha: data.sha 
             })
@@ -110,7 +121,13 @@ async function manageTrack(mode) {
             document.getElementById('trackTitle').value = "";
             document.getElementById('fireUrl').value = "";
         } else {
-            throw new Error("Помилка при збереженні на GitHub");
+            throw new Error("GitHub відхилив запит");
         }
     } catch (e) { 
-        status.innerText = "По
+        status.innerText = "Помилка: " + e.message; 
+    }
+}
+</script>
+
+</body>
+</html>
