@@ -2,118 +2,101 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>SAШKOFF | BACKSTAGE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAШKOFF Premium | Music Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .admin-panel { background: #161616; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #ff0000; letter-spacing: 2px; text-transform: uppercase; margin-top: 0; }
-        label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
-        input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #222; background: #222; color: #fff; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #ff0000; }
-        button { background: #ff0000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #cc0000; transform: translateY(-1px); }
-        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #ffff00; min-height: 20px; }
+        :root { --primary: #ff0000; --bg: #0b0b0b; --line: #1a1a1a; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 100px; }
+        header { background: linear-gradient(180deg, #1a0000 0%, #0b0b0b 100%); padding: 40px 15px 25px; text-align: center; border-bottom: 1px solid #222; position: relative; }
+        .back-btn-top { position: absolute; top: 20px; left: 20px; color: #888; text-decoration: none; font-size: 24px; }
+        .logo-circle { width: 60px; height: 60px; background: #000; border: 2px solid var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; justify-content: center; align-items: center; }
+        header h1 { font-size: 24px; margin: 0; letter-spacing: 4px; color: #fff; text-transform: uppercase; }
+        .tabs-nav { display: flex; background: #111; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
+        .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px 5px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .tab-btn.active { color: white; border-bottom: 3px solid var(--primary); }
+        .tab-content { display: none; padding: 10px 0; }
+        .tab-content.active { display: block; }
+        .track-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--line); }
+        .play-btn { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; cursor: pointer; border: 1px solid #333; color: var(--primary); flex-shrink: 0; }
+        .track-info { flex-grow: 1; overflow: hidden; }
+        .track-info h4 { margin: 0; font-size: 15px; color: #efefef; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .buy-icon-btn { background: #1a1a1a; border: 1px solid #333; color: #888; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; }
+        .buy-icon-btn.added { background: var(--primary); border-color: var(--primary); color: white; }
+        audio { display: none; }
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; padding: 15px; border-top: 2px solid var(--primary); display: none; z-index: 1001; }
+        .cart-flex { display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; }
+        .checkout-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="admin-panel">
-    <h2>BACKSTAGE</h2>
-    <label>GitHub Token</label>
-    <input type="password" id="ghToken" placeholder="Встав свій токен">
-    <label>Назва пісні</label>
-    <input type="text" id="trackTitle" placeholder="Введіть назву...">
-    <label>Категорія</label>
-    <select id="trackCategory">
-        <option value="ua">🇺🇦 Українська</option>
-        <option value="intl">🌍 Зарубіжна</option>
-        <option value="inst">🎹 Мінусовка</option>
-    </select>
-    <label>Firebase Link</label>
-    <input type="text" id="fireUrl" placeholder="https://firebasestorage...">
-    <button onclick="manageTrack('add')">ОПУБЛІКУВАТИ</button>
-    <button onclick="manageTrack('del')" style="background:#333">ВИДАЛИТИ ЗА НАЗВОЮ</button>
-    <div id="status"></div>
+<header>
+    <a href="index.html" class="back-btn-top"><i class="fa-solid fa-circle-chevron-left"></i></a>
+    <div class="logo-circle"><i class="fa-solid fa-music"></i></div>
+    <h1>SAШKOFF</h1>
+    <p>Premium Store</p>
+</header>
+
+<div class="tabs-nav">
+    <button class="tab-btn active" onclick="openTab('ua', this)">Українські</button>
+    <button class="tab-btn" onclick="openTab('intl', this)">Світові</button>
+    <button class="tab-btn" onclick="openTab('inst', this)">Мінуси</button>
+</div>
+
+<div class="container">
+    <div id="ua" class="tab-content active">
+        <div id="marker-ua"></div>
+    </div>
+    <div id="intl" class="tab-content">
+        <div id="marker-intl"></div>
+    </div>
+    <div id="inst" class="tab-content">
+        <div id="marker-inst"></div>
+    </div>
+</div>
+
+<div class="cart-bar" id="cartBar">
+    <div class="cart-flex">
+        <div id="cartStatus">0₴</div>
+        <button class="checkout-btn" onclick="sendOrder()">ОФОРМИТИ</button>
+    </div>
 </div>
 
 <script>
-async function manageTrack(mode) {
-    const token = document.getElementById('ghToken').value.trim();
-    const title = document.getElementById('trackTitle').value.trim();
-    const category = document.getElementById('trackCategory').value;
-    const fireUrl = document.getElementById('fireUrl').value.trim();
-    const status = document.getElementById('status');
-    const REPO = "sawafran/my-web";
-
-    if(!token || !title) return alert("Введи токен та назву!");
-    status.innerText = "З'єднання...";
-
-    try {
-        const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        
-        // Отримуємо файл БЕЗ заголовка cache-control (щоб не було помилки CORS)
-        const res = await fetch(url, { 
-            headers: { 'Authorization': `token ${token}` } 
-        });
-
-        if(!res.ok) throw new Error("Помилка доступу (перевір токен)");
-
-        const data = await res.json();
-        let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-
-        const startTag = ``;
-        const endTag = ``;
-
-        if(mode === 'add') {
-            if(content.includes(startTag)) throw new Error("Така пісня вже є!");
-            
-            // Новий формат списку
-            const trackHtml = `\n${startTag}\n<div class="track-row">
-    <div class="play-btn" onclick="playMusic(this)">
-        <i class="fa-solid fa-play"></i>
-        <audio src="${fireUrl}"></audio>
-    </div>
-    <div class="track-info" onclick="playMusic(this.previousElementSibling)">
-        <h4>${title}</h4>
-        <p>Saшkoff • 2026 • HQ MP3</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart('${title}', 5, this)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>\n${endTag}\n`;
-
-            const marker = `<div id="marker-${category}"></div>`;
-            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено!");
-            content = content.replace(marker, marker + trackHtml);
-        } else {
-            const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
-            content = content.replace(regex, "");
-        }
-
-        const push = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                message: mode === 'add' ? `+ ${title}` : `- ${title}`, 
-                content: btoa(unescape(encodeURIComponent(content))), 
-                sha: data.sha 
-            })
-        });
-
-        if(push.ok) {
-            status.innerText = "УСПІШНО ОНОВЛЕНО!";
-            document.getElementById('trackTitle').value = "";
-            document.getElementById('fireUrl').value = "";
-        } else {
-            throw new Error("GitHub відхилив запит");
-        }
-    } catch (e) { 
-        status.innerText = "Помилка: " + e.message; 
-        console.error(e);
+let cartArr = [];
+function openTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).style.display = 'block';
+    btn.classList.add('active');
+}
+function playMusic(btn) {
+    const audio = btn.querySelector('audio');
+    const icon = btn.querySelector('i');
+    if (audio.paused) {
+        document.querySelectorAll('audio').forEach(a => { a.pause(); a.parentElement.querySelector('i').className = 'fa-solid fa-play'; });
+        audio.play();
+        icon.className = 'fa-solid fa-pause';
+    } else {
+        audio.pause();
+        icon.className = 'fa-solid fa-play';
     }
+}
+function toCart(name, price, btn) {
+    const index = cartArr.indexOf(name);
+    if (index > -1) { cartArr.splice(index, 1); btn.classList.remove('added'); }
+    else { cartArr.push(name); btn.classList.add('added'); }
+    const bar = document.getElementById('cartBar');
+    if (cartArr.length > 0) {
+        bar.style.display = 'block';
+        let t = cartArr.length * 5; if (cartArr.length >= 15) t = 50;
+        document.getElementById('cartStatus').innerText = t + '₴ (' + cartArr.length + ')';
+    } else { bar.style.display = 'none'; }
+}
+function sendOrder() {
+    const text = "Замовлення:\n- " + cartArr.join("\n- ");
+    window.location.href = "https://t.me/Sawkoffoficial?text=" + encodeURIComponent(text);
 }
 </script>
 </body>
