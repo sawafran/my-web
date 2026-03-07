@@ -25,7 +25,7 @@
             align-items: center; 
             padding: 15px; 
             border-bottom: 1px solid var(--line); 
-            position: relative; /* Для фіксації кошика */
+            position: relative;
         }
         .track-row.is-playing { background: rgba(255,0,0,0.1); }
 
@@ -37,16 +37,13 @@
 
         /* КОРЗИНА - ЖОРСТКО СПРАВА */
         .buy-icon-btn { 
-            position: absolute; 
-            right: 15px; 
-            top: 50%; 
-            transform: translateY(-50%);
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
             background: #1a1a1a; border: 1px solid #333; color: #888; 
             width: 44px; height: 44px; border-radius: 12px; cursor: pointer; 
         }
         .buy-icon-btn.added { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ПЛЕЄР ВНИЗУ (Sefon Style) */
+        /* ФІКСОВАНИЙ ПЛЕЄР (Streaming Style) */
         #bottomPlayer { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: #161616; border-top: 2px solid var(--primary); 
@@ -79,23 +76,7 @@
 </div>
 
 <div class="container">
-    <div id="ua" class="tab-content active"><div id="marker-ua"></div>
-
-<div class="track-row">
-    <div class="play-btn" onclick="playMusic(this)">
-        <i class="fa-solid fa-play"></i>
-        <audio src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9"></audio>
-    </div>
-    <div class="track-info" onclick="playMusic(this.previousElementSibling)">
-        <h4>Заспівай мені соловей</h4>
-        <p>Saшkoff • 2026 • HQ MP3</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart('Заспівай мені соловей', 5, this)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>
-
-</div>
+    <div id="ua" class="tab-content active"><div id="marker-ua"></div></div>
     <div id="intl" class="tab-content"><div id="marker-intl"></div></div>
     <div id="inst" class="tab-content"><div id="marker-inst"></div></div>
 </div>
@@ -106,7 +87,7 @@
             <i id="pIcon" class="fa-solid fa-pause"></i>
         </div>
         <div class="p-meta">
-            <h5 id="pTitle">Завантаження...</h5>
+            <h5 id="pTitle">Назва пісні...</h5>
             <div class="p-progress">
                 <span class="p-time" id="cTime">0:00</span>
                 <input type="range" id="pRange" class="p-slider" value="0" min="0" max="100" oninput="seek(this)">
@@ -135,11 +116,13 @@ function openTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ОСНОВНА ФУНКЦІЯ (назва має бути playMusic для адмінки)
-function playMusic(title, url, el) {
-    const row = el.closest('.track-row');
-    document.querySelectorAll('.track-row').forEach(r => r.classList.remove('is-playing'));
-    row.classList.add('is-playing');
+// ПРЯМИЙ ЗАПУСК БЕЗ ПОШУКУ ЕЛЕМЕНТІВ (щоб не було помилки closest)
+function startStreaming(title, url) {
+    // Візуальна відмітка в списку
+    document.querySelectorAll('.track-row').forEach(r => {
+        if(r.innerHTML.includes(title)) r.classList.add('is-playing');
+        else r.classList.remove('is-playing');
+    });
 
     if (gAudio.src !== url) {
         gAudio.src = url;
@@ -167,10 +150,7 @@ gAudio.ontimeupdate = () => {
     }
 };
 
-gAudio.onended = () => {
-    let next = document.querySelector('.track-row.is-playing').nextElementSibling;
-    if(next && next.classList.contains('track-row')) next.querySelector('.track-info-mini').click();
-};
+gAudio.onended = () => { /* Тут можна додати автоплей наступного */ };
 
 function fmt(s) {
     let m = Math.floor(s/60); let sc = Math.floor(s%60);
