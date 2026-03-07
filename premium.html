@@ -2,15 +2,16 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAШKOFF Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAШKOFF PREMIUM</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #0b0b0b; --line: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 120px; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 120px; }
         
-        header { background: linear-gradient(180deg, #1f0000 0%, #0b0b0b 100%); padding: 30px 15px; text-align: center; border-bottom: 1px solid #333; }
-        header h1 { font-size: 24px; margin: 0; letter-spacing: 4px; color: #fff; text-transform: uppercase; }
+        /* ШАПКА */
+        header { background: linear-gradient(180deg, #1f0000 0%, #0b0b0b 100%); padding: 35px 15px; text-align: center; border-bottom: 1px solid #333; }
+        header h1 { font-size: 26px; margin: 0; letter-spacing: 5px; color: #fff; text-transform: uppercase; font-weight: 900; }
 
         .tabs-nav { display: flex; background: #111; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
         .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
@@ -19,41 +20,62 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* СПИСОК ТРЕКІВ */
-        .track-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--line); width: 100%; box-sizing: border-box; }
+        /* СПИСОК ПІСЕНЬ (ФІКС КОРЗИНИ СПРАВА) */
+        .track-row { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 15px; 
+            border-bottom: 1px solid var(--line); 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
         .track-row.is-playing { background: rgba(255,0,0,0.1); }
 
-        .play-trigger { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; cursor: pointer; color: var(--primary); border: 1px solid #333; flex-shrink: 0; }
+        .play-trigger { 
+            width: 42px; height: 42px; background: #1a1a1a; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            margin-right: 15px; cursor: pointer; color: var(--primary); 
+            border: 1px solid #333; flex-shrink: 0; 
+        }
         
-        .track-info-mini { flex-grow: 1; cursor: pointer; min-width: 0; padding-right: 10px; }
-        .track-info-mini h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-info-mini { flex: 1; cursor: pointer; min-width: 0; }
+        .track-info-mini h4 { margin: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-info-mini p { margin: 2px 0 0; font-size: 11px; color: #555; }
 
         /* КОРЗИНА - СУВОРО СПРАВА */
-        .buy-icon-btn { margin-left: auto; background: #1a1a1a; border: 1px solid #333; color: #888; width: 42px; height: 42px; border-radius: 10px; cursor: pointer; flex-shrink: 0; }
+        .buy-icon-btn { 
+            margin-left: auto; 
+            background: #1a1a1a; border: 1px solid #333; color: #888; 
+            width: 44px; height: 44px; border-radius: 12px; cursor: pointer; flex-shrink: 0; 
+        }
         .buy-icon-btn.added { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ПЛЕЄР, ЩО ВИСКАКУЄ ЗНИЗУ */
-        .floating-player { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; border-top: 2px solid var(--primary); padding: 15px 20px; z-index: 9999; display: none; box-shadow: 0 -10px 30px rgba(0,0,0,0.9); animation: slideUp 0.4s ease-out; }
+        /* ПЛЕЄР ВНИЗУ (ПОНАД СПИСКОМ) */
+        #fPlayer { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: #161616; border-top: 2px solid var(--primary); 
+            padding: 15px 20px; z-index: 9999; display: none; 
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.9); animation: slideUp 0.4s ease-out; 
+        }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .player-flex { display: flex; align-items: center; gap: 15px; max-width: 600px; margin: 0 auto; }
-        .player-main-btn { font-size: 28px; color: var(--primary); cursor: pointer; width: 35px; text-align: center; }
-        .player-meta { flex-grow: 1; min-width: 0; }
+        .player-main-btn { font-size: 30px; color: var(--primary); cursor: pointer; width: 35px; text-align: center; }
+        .player-meta { flex: 1; min-width: 0; }
         .player-meta h5 { margin: 0; font-size: 14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .progress-container { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-        .progress-bar { flex-grow: 1; accent-color: var(--primary); height: 4px; cursor: pointer; }
-        .time { font-size: 10px; color: #888; min-width: 30px; font-family: monospace; }
+        .progress-bar { flex: 1; accent-color: var(--primary); height: 4px; cursor: pointer; }
+        .time { font-size: 10px; color: #888; min-width: 35px; font-family: monospace; }
 
-        /* КНОПКА ЗАМОВЛЕННЯ */
-        .order-pill { position: fixed; bottom: 90px; right: 15px; background: var(--primary); color: white; padding: 10px 20px; border-radius: 25px; display: none; z-index: 1000; font-weight: bold; box-shadow: 0 5px 15px rgba(255,0,0,0.4); border: none; cursor: pointer; }
+        .order-pill { position: fixed; bottom: 95px; right: 20px; background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 1000; font-weight: 900; box-shadow: 0 5px 20px rgba(255,0,0,0.5); cursor: pointer; border: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>SAШKOFF PREMIUM</h1>
+    <h1>SAШKOFF</h1>
+    <p>Official Premium Store</p>
 </header>
 
 <div class="tabs-nav">
@@ -63,28 +85,12 @@
 </div>
 
 <div class="container">
-    <div id="ua" class="tab-content active"><div id="marker-ua"></div>
-
-<div class="track-row">
-    <div class="play-btn" onclick="playMusic(this)">
-        <i class="fa-solid fa-play"></i>
-        <audio src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9"></audio>
-    </div>
-    <div class="track-info" onclick="playMusic(this.previousElementSibling)">
-        <h4>Заспівай мені соловей</h4>
-        <p>Saшkoff • 2026 • HQ MP3</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart('Заспівай мені соловей', 5, this)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>
-
-</div>
+    <div id="ua" class="tab-content active"><div id="marker-ua"></div></div>
     <div id="intl" class="tab-content"><div id="marker-intl"></div></div>
     <div id="inst" class="tab-content"><div id="marker-inst"></div></div>
 </div>
 
-<div class="floating-player" id="fPlayer">
+<div id="fPlayer">
     <div class="player-flex">
         <div class="player-main-btn" onclick="togglePlayback()">
             <i id="pIcon" class="fa-solid fa-pause"></i>
@@ -97,18 +103,16 @@
                 <span class="time" id="tTime">0:00</span>
             </div>
         </div>
-        <div onclick="closePlayer()" style="color:#555; cursor:pointer;"><i class="fa-solid fa-times"></i></div>
+        <div onclick="document.getElementById('fPlayer').style.display='none'; audio.pause();" style="color:#555; cursor:pointer;"><i class="fa-solid fa-times"></i></div>
     </div>
 </div>
 
-<button class="order-pill" id="orderBtn" onclick="sendOrder()">ОФОРМИТИ (0)</button>
-
+<button class="order-pill" id="orderBtn" onclick="sendOrder()">ОФОРМИТИ</button>
 <audio id="mainAudio"></audio>
 
 <script>
 let cartArr = [];
 const audio = document.getElementById('mainAudio');
-const fPlayer = document.getElementById('fPlayer');
 const pIcon = document.getElementById('pIcon');
 const pTitle = document.getElementById('pTitle');
 const pRange = document.getElementById('pRange');
@@ -120,16 +124,14 @@ function openTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ЗАПУСК ПІСНІ
 function startTrack(title, url, el) {
     document.querySelectorAll('.track-row').forEach(r => r.classList.remove('is-playing'));
     el.closest('.track-row').classList.add('is-playing');
-
     if (audio.src !== url) {
         audio.src = url;
         pTitle.innerText = title;
-        fPlayer.style.display = 'block';
-        audio.play();
+        document.getElementById('fPlayer').style.display = 'block';
+        audio.play().catch(e => console.log("Interaction needed"));
         pIcon.className = 'fa-solid fa-pause';
     } else {
         togglePlayback();
@@ -142,7 +144,7 @@ function togglePlayback() {
 }
 
 function seekAudio(range) {
-    audio.currentTime = (range.value / 100) * audio.duration;
+    if(!isNaN(audio.duration)) audio.currentTime = (range.value / 100) * audio.duration;
 }
 
 audio.ontimeupdate = () => {
@@ -163,8 +165,6 @@ function fmtTime(s) {
     return m + ":" + (sc < 10 ? "0" + sc : sc);
 }
 
-function closePlayer() { fPlayer.style.display = 'none'; audio.pause(); }
-
 function toCart(name, btn, ev) {
     ev.stopPropagation();
     let idx = cartArr.indexOf(name);
@@ -180,8 +180,7 @@ function toCart(name, btn, ev) {
 }
 
 function sendOrder() {
-    let msg = "Вітаю! Замовляю преміум-треки:\n- " + cartArr.join("\n- ");
-    window.location.href = "https://t.me/Sawkoffoficial?text=" + encodeURIComponent(msg);
+    window.location.href = "https://t.me/Sawkoffoficial?text=" + encodeURIComponent("Замовляю:\n- " + cartArr.join("\n- "));
 }
 </script>
 </body>
