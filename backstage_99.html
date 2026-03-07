@@ -57,15 +57,19 @@ async function manageTrack(mode) {
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { headers: {'Authorization': `token ${token}`} });
+        const res = await fetch(url, { headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} });
+        if(!res.ok) throw new Error("Не вдалося отримати файл. Перевір токен!");
+        
         const data = await res.json();
         let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
+        // ВАЖЛИВО: Мітки не повинні бути порожніми!
         const startTag = ``;
         const endTag = ``;
 
         if(mode === 'add') {
-            // ФОРМАТ ТОНКОГО РЯДКА (Sefon style)
+            if(content.includes(startTag)) throw new Error("Пісня з такою назвою вже є!");
+
             const trackHtml = `\n${startTag}\n<div class="track-row">
     <div class="play-btn" onclick="playMusic(this)">
         <i class="fa-solid fa-play"></i>
@@ -81,10 +85,13 @@ async function manageTrack(mode) {
 </div>\n${endTag}\n`;
 
             const marker = `<div id="marker-${category}"></div>`;
-            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено!");
+            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено в premium.html!");
+            
             content = content.replace(marker, marker + trackHtml);
         } else {
+            // Видалення
             const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
+            if(!content.match(regex)) throw new Error("Пісню не знайдено для видалення!");
             content = content.replace(regex, "");
         }
 
@@ -102,6 +109,8 @@ async function manageTrack(mode) {
             status.innerText = "УСПІШНО ОНОВЛЕНО!";
             document.getElementById('trackTitle').value = "";
             document.getElementById('fireUrl').value = "";
+        } else {
+            throw new Error("Помилка при збереженні на GitHub");
         }
-    } catch (e) { status.innerText = "Помилка: " + e.message; }
-}
+    } catch (e) { 
+        status.innerText = "По
