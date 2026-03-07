@@ -7,38 +7,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #0b0b0b; --line: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 160px; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 160px; }
         
-        header { background: linear-gradient(180deg, #1a0000 0%, #0b0b0b 100%); padding: 40px 15px 25px; text-align: center; border-bottom: 1px solid #222; }
-        header h1 { font-size: 24px; margin: 0; letter-spacing: 4px; color: #fff; text-transform: uppercase; }
+        header { background: linear-gradient(180deg, #1a0000 0%, #0b0b0b 100%); padding: 30px 15px; text-align: center; border-bottom: 1px solid #222; }
+        header h1 { font-size: 24px; margin: 0; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
 
         .tabs-nav { display: flex; background: #111; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
-        .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px 5px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .tab-btn.active { color: white; border-bottom: 3px solid var(--primary); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* СПИСОК ТРЕКІВ */
-        .track-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--line); position: relative; }
+        /* ТРЕК-РЯДОК */
+        .track-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--line); }
         .track-row.is-playing { background: rgba(255,0,0,0.1); }
 
-        .play-btn-small { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; cursor: pointer; color: var(--primary); border: 1px solid #333; flex-shrink: 0; }
+        .play-trigger { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; cursor: pointer; color: var(--primary); border: 1px solid #333; flex-shrink: 0; }
         
-        .track-info-mini { flex-grow: 1; cursor: pointer; min-width: 0; }
+        .track-info-mini { flex-grow: 1; cursor: pointer; overflow: hidden; }
         .track-info-mini h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-info-mini p { margin: 2px 0 0; font-size: 11px; color: #555; }
 
-        /* КОРЗИНА В ПРОТИЛЕЖНОМУ КІНЦІ (СПРАВА) */
-        .buy-icon-btn { background: #1a1a1a; border: 1px solid #333; color: #888; width: 42px; height: 42px; border-radius: 10px; cursor: pointer; flex-shrink: 0; margin-left: 10px; }
+        /* КОШИК СПРАВА */
+        .buy-icon-btn { background: #1a1a1a; border: 1px solid #333; color: #888; width: 42px; height: 42px; border-radius: 10px; cursor: pointer; flex-shrink: 0; margin-left: auto; }
         .buy-icon-btn.added { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* НИЖНІЙ ПЛЕЄР */
+        /* ПЛЕЄР ВНИЗУ */
         .bottom-player { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; border-top: 1px solid #333; padding: 15px 20px; z-index: 2000; display: none; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
         .bottom-player.active { display: block; }
         
         .player-controls { display: flex; align-items: center; gap: 15px; max-width: 600px; margin: 0 auto; }
-        .main-play-btn { font-size: 30px; color: var(--primary); cursor: pointer; width: 30px; }
+        .main-play-btn { font-size: 30px; color: var(--primary); cursor: pointer; width: 30px; text-align: center; }
         
         .player-track-meta { flex-grow: 1; min-width: 0; }
         .player-track-meta h5 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -47,15 +47,14 @@
         .seek-slider { flex-grow: 1; accent-color: var(--primary); cursor: pointer; height: 4px; }
         .time-text { font-size: 10px; color: #888; min-width: 30px; }
 
-        /* ПАНЕЛЬ ЗАМОВЛЕННЯ */
-        .cart-bar { position: fixed; bottom: 105px; right: 15px; background: var(--primary); color: white; padding: 12px 20px; border-radius: 30px; display: none; z-index: 1001; box-shadow: 0 5px 15px rgba(255,0,0,0.4); cursor: pointer; font-weight: bold; }
+        /* КНОПКА ЗАМОВЛЕННЯ */
+        .cart-bar { position: fixed; bottom: 105px; right: 20px; background: var(--primary); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 1001; box-shadow: 0 5px 15px rgba(255,0,0,0.4); cursor: pointer; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>SAШKOFF</h1>
-    <p>Premium Store</p>
+    <h1>SAШKOFF Premium</h1>
 </header>
 
 <div class="tabs-nav">
@@ -65,23 +64,7 @@
 </div>
 
 <div class="container">
-    <div id="ua" class="tab-content active"><div id="marker-ua"></div>
-
-<div class="track-row">
-    <div class="play-btn" onclick="playMusic(this)">
-        <i class="fa-solid fa-play"></i>
-        <audio src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9"></audio>
-    </div>
-    <div class="track-info" onclick="playMusic(this.previousElementSibling)">
-        <h4>Заспівай мені соловей</h4>
-        <p>Saшkoff • 2026 • HQ MP3</p>
-    </div>
-    <button class="buy-icon-btn" onclick="toCart('Заспівай мені соловей', 5, this)">
-        <i class="fa-solid fa-cart-shopping"></i>
-    </button>
-</div>
-
-</div>
+    <div id="ua" class="tab-content active"><div id="marker-ua"></div></div>
     <div id="intl" class="tab-content"><div id="marker-intl"></div></div>
     <div id="inst" class="tab-content"><div id="marker-inst"></div></div>
 </div>
@@ -99,12 +82,12 @@
                 <span class="time-text" id="durTime">0:00</span>
             </div>
         </div>
-        <div onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></div>
+        <div onclick="closePlayer()" style="cursor:pointer; color:#555;"><i class="fa-solid fa-xmark"></i></div>
     </div>
 </div>
 
 <div class="cart-bar" id="cartBar" onclick="sendOrder()">
-    <span id="cartInfo">0₴ — ОФОРМИТИ</span>
+    <span id="cartInfo">ОФОРМИТИ</span>
 </div>
 
 <audio id="globalAudio"></audio>
@@ -124,16 +107,18 @@ function openTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ФУНКЦІЯ ЗАПУСКУ (викликається з рядка треку)
+// Функція запуску
 function startTrack(title, url, element) {
+    // Прибираємо підсвітку у всіх
     document.querySelectorAll('.track-row').forEach(r => r.classList.remove('is-playing'));
+    // Додаємо підсвітку поточному рядку
     element.closest('.track-row').classList.add('is-playing');
 
     if (audio.src !== url) {
         audio.src = url;
         titleDisplay.innerText = title;
         player.classList.add('active');
-        audio.play().catch(e => console.log("Error playing:", e));
+        audio.play().catch(e => alert("Натисніть Play ще раз (захист браузера)"));
         mainIcon.className = 'fa-solid fa-pause';
     } else {
         toggleMainPlay();
@@ -151,8 +136,9 @@ function toggleMainPlay() {
 }
 
 function manualSeek(slider) {
-    const time = (slider.value / 100) * audio.duration;
-    audio.currentTime = time;
+    if(!isNaN(audio.duration)) {
+        audio.currentTime = (slider.value / 100) * audio.duration;
+    }
 }
 
 audio.ontimeupdate = () => {
@@ -168,8 +154,7 @@ audio.onended = () => {
     if (activeRow) {
         const nextRow = activeRow.nextElementSibling;
         if (nextRow && nextRow.classList.contains('track-row')) {
-            const nextInfo = nextRow.querySelector('.track-info-mini');
-            nextInfo.click();
+            nextRow.querySelector('.track-info-mini').click();
         }
     }
 };
@@ -185,17 +170,29 @@ function closePlayer() { player.classList.remove('active'); audio.pause(); }
 function toCart(name, btn, event) {
     event.stopPropagation();
     const index = cartArr.indexOf(name);
-    if (index > -1) { cartArr.splice(index, 1); btn.classList.remove('added'); }
-    else { cartArr.push(name); btn.classList.add('added'); }
+    if (index > -1) {
+        cartArr.splice(index, 1);
+        btn.classList.remove('added');
+    } else {
+        cartArr.push(name);
+        btn.classList.add('added');
+    }
     
     const bar = document.getElementById('cartBar');
     if (cartArr.length > 0) {
         bar.style.display = 'block';
-        let total = cartArr.length * 5; if (cartArr.length >= 15) total = 50;
+        let total = cartArr.length * 5; 
+        if (cartArr.length >= 15) total = 50;
         document.getElementById('cartInfo').innerText = total + "₴ — ОФОРМИТИ (" + cartArr.length + ")";
-    } else { bar.style.display = 'none'; }
+    } else {
+        bar.style.display = 'none';
+    }
 }
 
 function sendOrder() {
-    const text = "Вітаю! Замовлення на преміум:\n- " + cartArr.join("\n- ");
-    window.
+    const text = "Вітаю! Моє замовлення:\n- " + cartArr.join("\n- ");
+    window.location.href = "https://t.me/Sawkoffoficial?text=" + encodeURIComponent(text);
+}
+</script>
+</body>
+</html>
