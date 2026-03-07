@@ -7,34 +7,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #ff0000; --bg: #0b0b0b; --line: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
         .container { width: 100%; max-width: 600px; margin: 0 auto; }
         
-        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--line); }
-        h1 { font-size: 22px; margin: 10px 0; color: var(--primary); letter-spacing: 2px; }
+        header { padding: 15px; text-align: center; border-bottom: 1px solid var(--line); }
+        h1 { font-size: 20px; margin: 5px 0; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; }
 
-        /* Навігація вкладок як на Sefon */
-        .tabs-nav { display: flex; background: #111; padding: 5px; sticky: top; }
-        .tab-btn { flex: 1; background: none; border: none; color: #888; padding: 12px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        /* Вкладки */
+        .tabs-nav { display: flex; background: #111; sticky: top; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .tab-btn { flex: 1; background: none; border: none; color: #666; padding: 15px 5px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .tab-btn.active { color: white; border-bottom: 2px solid var(--primary); }
 
-        .tab-content { display: none; padding: 10px 0; }
+        .tab-content { display: none; padding-top: 5px; }
         .tab-content.active { display: block; }
 
-        /* Стиль списку як на Sefon */
+        /* Список треків */
         .track-row { 
             display: flex; 
             align-items: center; 
             padding: 12px 15px; 
-            border-bottom: 1px solid var(--line); 
-            transition: 0.2s;
+            border-bottom: 1px solid var(--line);
         }
-        .track-row:hover { background: #161616; }
+        .track-row:active { background: #1a1a1a; }
 
-        .play-icon { 
-            width: 40px; 
-            height: 40px; 
-            background: #222; 
+        .play-btn { 
+            width: 42px; 
+            height: 42px; 
+            background: #1a1a1a; 
             border-radius: 50%; 
             display: flex; 
             justify-content: center; 
@@ -43,50 +42,47 @@
             cursor: pointer;
             border: 1px solid #333;
             color: var(--primary);
+            flex-shrink: 0;
         }
 
-        .track-info { flex-grow: 1; cursor: pointer; }
-        .track-info h4 { margin: 0; font-size: 15px; font-weight: 500; color: #efefef; }
-        .track-info p { margin: 3px 0 0 0; font-size: 12px; color: #666; }
-
-        .track-actions { display: flex; align-items: center; gap: 15px; }
-        
-        /* Прихований плеєр, який керується кнопкою */
-        audio { display: none; }
+        .track-info { flex-grow: 1; overflow: hidden; cursor: pointer; }
+        .track-info h4 { margin: 0; font-size: 15px; font-weight: 500; color: #efefef; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-info p { margin: 2px 0 0 0; font-size: 11px; color: #555; }
 
         .buy-icon-btn { 
-            background: none; 
+            background: #1a1a1a; 
             border: 1px solid #333; 
-            color: #aaa; 
-            width: 35px; 
-            height: 35px; 
-            border-radius: 8px; 
+            color: #888; 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 10px; 
             cursor: pointer; 
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: 0.3s;
+            margin-left: 10px;
         }
         .buy-icon-btn.added { background: var(--primary); border-color: var(--primary); color: white; }
 
-        /* Кошик */
-        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px 20px; border-top: 2px solid var(--primary); display: none; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
-        .cart-flex { display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; }
-        .price-tag { font-size: 20px; font-weight: bold; }
-        .checkout-btn { background: var(--primary); color: white; text-decoration: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; }
+        audio { display: none; }
 
+        /* Кошик */
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; padding: 15px 20px; border-top: 2px solid var(--primary); display: none; z-index: 1000; box-shadow: 0 -5px 25px rgba(0,0,0,0.8); }
+        .cart-flex { display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; }
+        .price-tag { font-size: 22px; font-weight: 900; color: #fff; }
+        .checkout-btn { background: var(--primary); color: white; text-decoration: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(255,0,0,0.3); }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="index.html" style="color: #555; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-chevron-left"></i> Назад</a>
-    <h1>PREMIUM SHOP</h1>
+    <a href="index.html" style="color: #666; text-decoration: none; font-size: 12px; float: left;"><i class="fa-solid fa-chevron-left"></i> Назад</a>
+    <h1>Premium Shop</h1>
 </header>
 
 <div class="tabs-nav">
     <button class="tab-btn active" onclick="openTab(event, 'ua')">Українські</button>
-    <button class="tab-btn" onclick="event, openTab(event, 'intl')">Світові</button>
+    <button class="tab-btn" onclick="openTab(event, 'intl')">Світові</button>
     <button class="tab-btn" onclick="openTab(event, 'inst')">Мінуси</button>
 </div>
 
@@ -95,22 +91,19 @@
         <div id="marker-ua"></div>
         
         <div class="track-row">
-            <div class="play-icon" onclick="togglePlay(this)">
+            <div class="play-btn" onclick="handlePlay(this)">
                 <i class="fa-solid fa-play"></i>
                 <audio src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%9B%D1%96%D1%82%D0%BD%D1%96%D0%B9%20%D0%B2%D0%B5%D1%87%D1%96%D1%80...%20%D1%82%D0%B8%D1%88%D0%B0%20%D0%B2%20%D0%B4%D0%B2%D0%BE%D1%80%D1%96.mp3?alt=media&token=dd93a327-c92a-48b3-afec-281ac86fac68"></audio>
             </div>
-            <div class="track-info" onclick="togglePlay(this.previousElementSibling)">
+            <div class="track-info" onclick="handlePlay(this.previousElementSibling)">
                 <h4>Літній вечір... тиша в дворі</h4>
-                <p>Saшkoff • 2026 • HQ</p>
+                <p>Saшkoff • 2026 • HQ MP3</p>
             </div>
-            <div class="track-actions">
-                <button class="buy-icon-btn" onclick="toggleCart('Літній вечір... тиша в дворі', 5, this)">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                </button>
-            </div>
+            <button class="buy-icon-btn" onclick="toggleCart('Літній вечір... тиша в дворі', 5, this)">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </button>
         </div>
-
-        </div>
+    </div>
 
     <div id="intl" class="tab-content">
         <div id="marker-intl"></div>
@@ -125,6 +118,86 @@
     <div class="cart-flex">
         <div>
             <div class="price-tag" id="totalPrice">0₴</div>
-            <div style="font-size: 11px; color: #888;" id="totalCount">Вибрано: 0</div>
+            <div style="font-size: 11px; color: #888;" id="totalCount">Вибрано: 0 треків</div>
         </div>
-        <a href="javascript:void(0)" class="checkout-btn" onclick="processOrder
+        <button class="checkout-btn" onclick="processOrder()">ОФОРМИТИ</button>
+    </div>
+</div>
+
+<script>
+let cart = [];
+
+// Функція Плеєра
+function handlePlay(btn) {
+    const audio = btn.querySelector('audio');
+    const icon = btn.querySelector('i');
+    
+    // Зупиняємо всі інші аудіо
+    document.querySelectorAll('audio').forEach(el => {
+        if(el !== audio) {
+            el.pause();
+            el.currentTime = 0;
+            el.parentElement.querySelector('i').className = 'fa-solid fa-play';
+        }
+    });
+
+    if (audio.paused) {
+        audio.play().catch(e => console.log("Помилка відтворення"));
+        icon.className = 'fa-solid fa-pause';
+    } else {
+        audio.pause();
+        icon.className = 'fa-solid fa-play';
+    }
+}
+
+// Функція Вкладок
+function openTab(evt, tabName) {
+    // Ховаємо весь контент
+    const contents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < contents.length; i++) {
+        contents[i].classList.remove("active");
+    }
+
+    // Робимо всі кнопки неактивними
+    const buttons = document.getElementsByClassName("tab-btn");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove("active");
+    }
+
+    // Активуємо потрібну
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+// Функція Кошика
+function toggleCart(name, price, btn) {
+    const index = cart.findIndex(item => item.name === name);
+    if (index > -1) {
+        cart.splice(index, 1);
+        btn.classList.remove("added");
+    } else {
+        cart.push({name, price});
+        btn.classList.add("added");
+    }
+    
+    const bar = document.getElementById("cartBar");
+    const priceEl = document.getElementById("totalPrice");
+    const countEl = document.getElementById("totalCount");
+
+    if (cart.length > 0) {
+        bar.style.display = "block";
+        let sum = cart.length * 5;
+        if (cart.length >= 15) sum = 50;
+        priceEl.innerText = sum + "₴";
+        countEl.innerText = "Вибрано: " + cart.length + " треків";
+    } else {
+        bar.style.display = "none";
+    }
+}
+
+// Оформлення
+function processOrder() {
+    let sum = cart.length * 5;
+    if (cart.length >= 15) sum = 50;
+    const list = cart.map(i => i.name).join("\n- ");
+    const text
