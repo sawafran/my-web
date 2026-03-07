@@ -1,13 +1,13 @@
 async function manageTrack(mode) {
     const token = document.getElementById('ghToken').value.trim();
     const title = document.getElementById('trackTitle').value.trim();
-    const ytId = document.getElementById('ytId').value.trim();
-    const mp3 = document.getElementById('mp3File').value.trim();
+    const category = document.getElementById('trackCategory').value; // Нове поле: ua, intl або inst
+    const fireUrl = document.getElementById('fireUrl').value.trim(); // Посилання з Firebase
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token || !title) return alert("Введи токен та назву!");
-    status.innerText = "Обробка...";
+    if(!token || !title || (mode === 'add' && !fireUrl)) return alert("Заповни всі поля!");
+    status.innerText = "Зв'язок з GitHub...";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
@@ -15,37 +15,56 @@ async function manageTrack(mode) {
         const data = await res.json();
         let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
-        // Створюємо унікальний ключ для треку
-        const trackKey = title.toLowerCase().replace(/\s+/g, '');
+        // Створюємо мітки, щоб потім можна було видалити саме цей трек
+        const startTag = ``;
+        const endTag = ``;
 
         if(mode === 'add') {
-            let playerHtml = mp3 
-                ? `<audio controls controlsList="nodownload"><source src="https://raw.githubusercontent.com/${REPO}/main/${mp3}" type="audio/mpeg"></audio>`
-                : `<div class="player-wrapper"><iframe src="https://www.youtube.com/embed/${ytId}"></iframe></div>`;
-            
-            // СТВОРЮЄМО БЛОК З ЧІТКИМИ МЕЖАМИ
-            const fullBlock = `\n\n<div class="track-card">\n<div class="track-info"><h3>${title}</h3><p>SAШKOFF • 2026</p></div>\n${playerHtml}\n</div>\n`;
-            
-            const marker = '<div id="music-list"></div>';
-            content = content.replace(marker, marker + fullBlock);
-        } else {
-            // ВИДАЛЕННЯ: Шукаємо від BEGIN до END саме цього треку
-            const startTag = ``;
-            const endTag = ``;
-            
-            if(!content.includes(startTag)) throw new Error("Трек не знайдено!");
+            // Формуємо блок картки (з твоїми правками: nodownload + toggleCart)
+            const trackHtml = `
+${startTag}
+<div class="track-card">
+    <h4>${title}</h4>
+    <p>Saшkoff • 2026 • HQ MP3</p>
+    <audio controls controlsList="nodownload" oncontextmenu="return false;" src="${fireUrl}"></audio>
+    <button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button>
+</div>
+${endTag}\n`;
 
-            // Регулярний вираз: знайти все від мітки BEGIN до мітки END включно
+            // Визначаємо, в який розділ вставити
+            const marker = `<div id="marker-${category}"></div>`;
+            
+            if(!content.includes(marker)) throw new Error("Маркер категорії не знайдено в HTML!");
+            
+            // Вставляємо новий трек ОДРАЗУ ПІСЛЯ маркера категорії
+            content = content.replace(marker, marker + trackHtml);
+        } else {
+            // Видалення по мітках
             const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
+            if(!content.match(regex)) throw new Error("Трек з такою назвою не знайдено!");
             content = content.replace(regex, "");
         }
 
+        // Відправка оновленого файлу на GitHub
         const push = await fetch(url, {
             method: 'PUT',
             headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: mode==='add'?"+ "+title : "- "+title, content: btoa(unescape(encodeURIComponent(content))), sha: data.sha })
+            body: JSON.stringify({ 
+                message: mode==='add' ? `+ ${title} (${category})` : `- ${title}`, 
+                content: btoa(unescape(encodeURIComponent(content))), 
+                sha: data.sha 
+            })
         });
 
-        if(push.ok) status.innerText = "ГОТОВО!";
-    } catch (e) { status.innerText = e.message; }
+        if(push.ok) {
+            status.innerText = "УСПІШНО ОНОВЛЕНО!";
+            // Очищуємо поля
+            document.getElementById('trackTitle').value = "";
+            document.getElementById('fireUrl').value = "";
+        } else {
+            throw new Error("Помилка GitHub при збереженні");
+        }
+    } catch (e) { 
+        status.innerText = "Помилка: " + e.message; 
+    }
 }
