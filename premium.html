@@ -60,7 +60,23 @@
 </div>
 
 <div class="container">
-    <div id="ua" class="tab-content active"><div id="marker-ua"></div></div>
+    <div id="ua" class="tab-content active"><div id="marker-ua"></div>
+
+<div class="track-row">
+    <div class="play-btn" onclick="playMusic(this)">
+        <i class="fa-solid fa-play"></i>
+        <audio src="https://firebasestorage.googleapis.com/v0/b/sawkoff-music.firebasestorage.app/o/%D0%97%D0%B0%D1%81%D0%BF%D1%96%D0%B2%D0%B0%D0%B9%20%D0%BC%D0%B5%D0%BD%D1%96%20%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D0%B5%D0%B9.mp3?alt=media&token=8ffc4e15-9f80-4745-b59a-37807d1fdca9"></audio>
+    </div>
+    <div class="track-info" onclick="playMusic(this.previousElementSibling)">
+        <h4>Заспівай мені соловей</h4>
+        <p>Saшkoff • 2026 • HQ MP3</p>
+    </div>
+    <button class="buy-icon-btn" onclick="toCart('Заспівай мені соловей', 5, this)">
+        <i class="fa-solid fa-cart-shopping"></i>
+    </button>
+</div>
+
+</div>
     <div id="intl" class="tab-content"><div id="marker-intl"></div></div>
     <div id="inst" class="tab-content"><div id="marker-inst"></div></div>
 </div>
