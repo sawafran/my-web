@@ -2,31 +2,30 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAШKOFF | Backstage</title>
+    <title>SAШKOFF | BACKSTAGE</title>
     <style>
         body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .admin-panel { background: #161616; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #ff0000; text-transform: uppercase; letter-spacing: 2px; }
+        h2 { text-align: center; color: #ff0000; letter-spacing: 2px; text-transform: uppercase; margin-top: 0; }
         label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #222; background: #222; color: #fff; box-sizing: border-box; outline: none; }
         input:focus { border-color: #ff0000; }
-        button { background: #ff0000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button { background: #ff0000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #cc0000; transform: translateY(-1px); }
-        .del-btn { background: #333; margin-top: 5px; }
-        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #ffff00; min-height: 20px; }
+        .del-btn { background: #333; }
+        #status { text-align: center; font-size: 13px; margin-top: 15px; color: #00ff00; min-height: 20px; }
     </style>
 </head>
 <body>
 
 <div class="admin-panel">
-    <h2>Backstage</h2>
+    <h2>BACKSTAGE</h2>
     
     <label>GitHub Token</label>
     <input type="password" id="ghToken" placeholder="Встав свій токен">
     
     <label>Назва пісні</label>
-    <input type="text" id="trackTitle" placeholder="Назва для кошика">
+    <input type="text" id="trackTitle" placeholder="Літній вечір...">
     
     <label>Категорія</label>
     <select id="trackCategory">
@@ -53,56 +52,71 @@ async function manageTrack(mode) {
     const status = document.getElementById('status');
     const REPO = "sawafran/my-web";
 
-    if(!token || !title) return alert("Введи токен та назву!");
-    status.innerText = "Обробка...";
+    if(!token || !title) return alert("Заповни токен та назву!");
+    status.style.color = "yellow";
+    status.innerText = "З'єднуюсь з GitHub...";
 
     try {
         const url = `https://api.github.com/repos/${REPO}/contents/premium.html`;
-        const res = await fetch(url, { 
-            headers: {'Authorization': `token ${token}`, 'Cache-Control': 'no-cache'} 
+        
+        // КРОК 1: Отримуємо файл
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Cache-Control': 'no-cache'
+            }
         });
-        
-        if(!res.ok) throw new Error("Помилка доступу! Перевір токен.");
-        
+
+        if (!res.ok) throw new Error("Помилка доступу (перевір токен або назву репозиторію)");
+
         const data = await res.json();
         let content = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
 
         const startTag = ``;
         const endTag = ``;
 
-        if(mode === 'add') {
-            const fullBlock = `\n${startTag}\n<div class="track-card"><h4>${title}</h4><p>Saшkoff • 2026</p><audio controls controlsList="nodownload" oncontextmenu="return false;" src="${fireUrl}"></audio><button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button></div>\n${endTag}\n`;
+        if (mode === 'add') {
+            const trackHtml = `\n${startTag}\n<div class="track-card"><h4>${title}</h4><p>Saшkoff • 2026</p><audio controls controlsList="nodownload" oncontextmenu="return false;" src="${fireUrl}"></audio><button class="add-btn" onclick="toggleCart('${title}', 5, this)">СКАЧАТИ — 5₴</button></div>\n${endTag}\n`;
             const marker = `<div id="marker-${category}"></div>`;
             
-            if(!content.includes(marker)) throw new Error("Не знайдено маркер " + marker + " в premium.html");
-            content = content.replace(marker, marker + fullBlock);
+            if (!content.includes(marker)) throw new Error("Маркер категорії не знайдено в premium.html!");
+            content = content.replace(marker, marker + trackHtml);
         } else {
             const regex = new RegExp(`${startTag}[\\s\\S]*?${endTag}`, "g");
             content = content.replace(regex, "");
         }
 
+        // КРОК 2: Зберігаємо зміни
         const push = await fetch(url, {
             method: 'PUT',
-            headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json'},
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ 
-                message: mode === 'add' ? "+ " + title : "- " + title, 
+                message: mode === 'add' ? `+ ${title}` : `- ${title}`, 
                 content: btoa(unescape(encodeURIComponent(content))), 
                 sha: data.sha 
             })
         });
 
-        if(push.ok) {
-            status.innerText = "ГОТОВО! ПЕРЕВІР САЙТ.";
+        if (push.ok) {
+            status.style.color = "#00ff00";
+            status.innerText = "УСПІШНО ОПУБЛІКОВАНО!";
             document.getElementById('trackTitle').value = "";
             document.getElementById('fireUrl').value = "";
         } else {
-            status.innerText = "Помилка збереження на GitHub!";
+            throw new Error("GitHub відхилив запит на запис");
         }
-    } catch (e) { 
-        status.innerText = "Помилка: " + e.message; 
+
+    } catch (e) {
+        status.style.color = "red";
+        status.innerText = "Помилка: " + e.message;
+        console.error(e);
     }
 }
 </script>
-
 </body>
 </html>
